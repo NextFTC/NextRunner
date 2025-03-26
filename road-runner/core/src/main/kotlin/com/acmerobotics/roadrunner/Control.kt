@@ -1,5 +1,7 @@
 package com.acmerobotics.roadrunner
 
+import kotlin.math.abs
+import kotlin.math.sign
 import kotlin.math.sin
 import kotlin.math.sqrt
 import kotlin.math.withSign
@@ -35,6 +37,24 @@ data class MotorFeedforward(
 }
 
 /**
+ * Abstract controller for computing the velocity and acceleration commands for a robot.
+ */
+interface RobotPosVelController {
+
+    /**
+     * Computes the velocity and acceleration command. The frame `Target` is the reference robot, and the frame `Actual`
+     * is the measured, physical robot.
+     *
+     * @return velocity command in the actual frame
+     */
+    fun compute(
+        targetPose: Pose2dDual<Time>,
+        actualPose: Pose2d,
+        actualVelActual: PoseVelocity2d,
+    ): PoseVelocity2dDual<Time>
+}
+
+/**
  * Proportional position-velocity controller for a holonomic robot.
  */
 class HolonomicController(
@@ -50,7 +70,7 @@ class HolonomicController(
     val lateralVelGain: Double,
     @JvmField
     val headingVelGain: Double,
-) {
+) : RobotPosVelController {
     constructor(
         axialPosGain: Double,
         lateralPosGain: Double,
@@ -63,7 +83,7 @@ class HolonomicController(
      *
      * @return velocity command in the actual frame
      */
-    fun compute(
+    override fun compute(
         targetPose: Pose2dDual<Time>,
         actualPose: Pose2d,
         actualVelActual: PoseVelocity2d,
@@ -119,9 +139,38 @@ class RamseteController @JvmOverloads constructor(
     val zeta: Double = 0.7,
     @JvmField
     val bBar: Double = 2.0,
-) {
+) : RobotPosVelController {
     @JvmField
     val b = bBar / (trackWidth * trackWidth)
+
+    /**
+     * Computes the velocity and acceleration command. The frame `Target` is the reference robot, and the frame `Actual`
+     * is the measured, physical robot.
+     *
+     * @return velocity command in the actual frame
+     */
+    override fun compute(
+        targetPose: Pose2dDual<Time>,
+        actualPose: Pose2d,
+        actualVelActual: PoseVelocity2d
+    ): PoseVelocity2dDual<Time> {
+        val omegaRef = targetPose.heading.velocity()[0]
+        val vRef = targetPose.velocity().value().linearVel.norm() * sign(actualVelActual.angVel)
+
+        val k = 2.0 * zeta * sqrt(omegaRef * omegaRef + b * vRef * vRef)
+
+        val error = targetPose.value().minusExp(actualPose)
+        return PoseVelocity2dDual.constant(
+            PoseVelocity2d(
+                Vector2d(
+                    vRef * error.heading.real + k * error.position.x,
+                    0.0
+                ),
+                omegaRef + k * error.heading.log() + b * vRef * sinc(error.heading.log()) * error.position.y,
+            ),
+            2
+        )
+    }
 
     /**
      * Computes the velocity and acceleration command. The frame `Target` is the reference robot, and the frame `Actual`
@@ -139,14 +188,28 @@ class RamseteController @JvmOverloads constructor(
         val dir = tangentHeading.real * targetHeading.real + tangentHeading.imag * targetHeading.imag
         val vRef = dir * s[1]
 
+        return compute(targetPose.reparam(s), actualPose, PoseVelocity2d(Vector2d(vRef, 0.0), dir))
+    }
+
+    /**
+     * Computes the velocity and acceleration command. The frame `Target` is the reference robot, and the frame `Actual`
+     * is the measured, physical robot.
+     *
+     * @return velocity command in the actual frame
+     */
+    fun computeOld(
+        s: DualNum<Time>,
+        targetPose: Pose2dDual<Arclength>,
+        actualPose: Pose2d,
+    ): PoseVelocity2dDual<Time> {
+        val targetHeading = targetPose.heading.value()
+        val tangentHeading = targetPose.position.drop(1).value().angleCast()
+        val dir = tangentHeading.real * targetHeading.real + tangentHeading.imag * targetHeading.imag
+        val vRef = dir * s[1]
+
         val omegaRef = targetPose.reparam(s).heading.velocity()[0]
 
         val k = 2.0 * zeta * sqrt(omegaRef * omegaRef + b * vRef * vRef)
-
-        fun sinc(x: Double): Double {
-            val u = x + snz(x)
-            return sin(u) / u
-        }
 
         val error = targetPose.value().minusExp(actualPose)
         return PoseVelocity2dDual.constant(
@@ -159,5 +222,10 @@ class RamseteController @JvmOverloads constructor(
             ),
             2
         )
+    }
+
+    fun sinc(x: Double): Double {
+        val u = x + snz(x)
+        return sin(u) / u
     }
 }
