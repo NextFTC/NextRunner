@@ -3,6 +3,21 @@ package com.acmerobotics.roadrunner
 import kotlin.math.min
 
 /**
+ * Parameter for [DualNum] for internal use only.
+ */
+class Internal
+
+/**
+ * Arclength parameter for [DualNum]
+ */
+class Arclength
+
+/**
+ * Time parameter for [DualNum]
+ */
+class Time
+
+/**
  * @usesMathJax
  *
  * [Dual number](https://en.wikipedia.org/wiki/Dual_number) to implement forward autodifferentiation.

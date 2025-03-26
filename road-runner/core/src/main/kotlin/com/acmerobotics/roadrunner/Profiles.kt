@@ -10,11 +10,6 @@ import kotlin.math.sqrt
 import kotlin.math.withSign
 
 /**
- * Time parameter for [DualNum].
- */
-class Time
-
-/**
  * Acceleration-limited motion profile parameterized by displacement.
  *
  * @param[disps] displacements, beginning at zero and sorted ascending
