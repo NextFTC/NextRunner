@@ -9,6 +9,10 @@ import kotlin.math.min
 import kotlin.math.sqrt
 import kotlin.math.withSign
 
+interface Profile {
+    operator fun get(x: Double): DualNum<Time>
+}
+
 /**
  * Acceleration-limited motion profile parameterized by displacement.
  *
@@ -24,7 +28,7 @@ data class DisplacementProfile(
     val vels: List<Double>,
     @JvmField
     val accels: List<Double>,
-) {
+) : Profile {
     @JvmField
     val length = disps.last()
 
@@ -37,7 +41,7 @@ data class DisplacementProfile(
         }
     }
 
-    operator fun get(x: Double): DualNum<Time> {
+    override operator fun get(x: Double): DualNum<Time> {
         val index = disps.binarySearch(x)
         return when {
             index >= disps.lastIndex -> DualNum(doubleArrayOf(x, vels[index], 0.0))
@@ -79,7 +83,7 @@ class CancelableProfile(
     @JvmField val baseProfile: DisplacementProfile,
     @JvmField val disps: List<Double>,
     @JvmField val minAccels: List<Double>
-) {
+) : Profile by baseProfile {
     fun cancel(x: Double): DisplacementProfile {
         val newDisps = mutableListOf(0.0)
         val vels = mutableListOf(baseProfile[x][1])
@@ -146,7 +150,7 @@ data class TimeProfile @JvmOverloads constructor(
     val dispProfile: DisplacementProfile,
     @JvmField
     val times: List<Double> = timeScan(dispProfile),
-) {
+) : Profile {
     @JvmField
     val duration = times.last()
 
@@ -156,7 +160,7 @@ data class TimeProfile @JvmOverloads constructor(
         }
     }
 
-    operator fun get(t: Double): DualNum<Time> {
+    override operator fun get(t: Double): DualNum<Time> {
         val index = times.binarySearch(t)
         return when {
             index >= times.lastIndex ->

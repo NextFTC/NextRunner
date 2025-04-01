@@ -1,13 +1,21 @@
 package com.acmerobotics.roadrunner
 
-class Trajectory(
+interface Trajectory {
+    fun length(): Double
+
+    operator fun get(t: Double): Pose2dDual<Time>
+}
+
+class CancelableTrajcetory(
     @JvmField
     val path: MappedPosePath,
     @JvmField
     val profile: CancelableProfile,
     @JvmField
     val offsets: List<Double>
-) {
+) : Trajectory {
+
+
     fun cancel(s: Double): DisplacementTrajectory {
         val offset = s
         return DisplacementTrajectory(
@@ -18,6 +26,10 @@ class Trajectory(
             profile.cancel(s)
         )
     }
+
+    override fun length(): Double = path.length()
+
+    override fun get(s: Double) = path[s, 3].reparam(profile[s])
 }
 
 class DisplacementTrajectory(
@@ -25,14 +37,14 @@ class DisplacementTrajectory(
     val path: PosePath,
     @JvmField
     val profile: DisplacementProfile
-) {
-    constructor(t: Trajectory) : this(t.path, t.profile.baseProfile)
+) : Trajectory {
+    constructor(t: CancelableTrajcetory) : this(t.path, t.profile.baseProfile)
 
-    fun length() = path.length()
+    override fun length() = path.length()
 
     fun project(query: Vector2d, init: Double) = project(path, query, init)
 
-    operator fun get(s: Double) = path[s, 3].reparam(profile[s])
+    override operator fun get(s: Double): Pose2dDual<Time> = path[s, 3].reparam(profile[s])
 }
 
 class TimeTrajectory(
@@ -40,15 +52,17 @@ class TimeTrajectory(
     val path: PosePath,
     @JvmField
     val profile: TimeProfile
-) {
+) : Trajectory {
     @JvmField
     val duration = profile.duration
 
-    constructor(t: Trajectory) : this(t.path, TimeProfile(t.profile.baseProfile))
+    constructor(t: CancelableTrajcetory) : this(t.path, TimeProfile(t.profile.baseProfile))
 
     constructor(t: DisplacementTrajectory) : this(t.path, TimeProfile(t.profile))
 
-    operator fun get(t: Double): Pose2dDual<Time> {
+    override fun length(): Double = path.length()
+
+    override operator fun get(t: Double): Pose2dDual<Time> {
         val s = profile[t]
         return path[s.value(), 3].reparam(s)
     }

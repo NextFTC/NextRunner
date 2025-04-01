@@ -933,13 +933,13 @@ class TrajectoryBuilder private constructor(
     ) =
         add(pathBuilder.splineToSplineHeading(pose, tangent), velConstraintOverride, accelConstraintOverride)
 
-    fun build(): List<Trajectory> {
+    fun build(): List<CancelableTrajcetory> {
         val rawPaths = pathBuilder.build()
         val offsets = rawPaths.scan(0) { acc, rawPath -> acc + rawPath.paths.size }
         return rawPaths.zip(offsets).map { (rawPath, offset) ->
             val path = MappedPosePath(rawPath, poseMap)
 
-            Trajectory(
+            CancelableTrajcetory(
                 path,
                 profile(
                     profileParams,

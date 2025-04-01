@@ -165,6 +165,27 @@ data class CompositePosePath(
     override fun length() = length
 }
 
+class OffsetPosePath(
+    @JvmField
+    val path: PosePath,
+    @JvmField
+    val offsets: List<Double> = listOf(0.0, path.length())
+) : PosePath {
+    init {
+        require(offsets.size == 2) {
+            "offsets.size (${offsets.size}) != 2"
+        }
+    }
+
+    override fun get(s: Double, n: Int): Pose2dDual<Arclength> {
+        val offset = offsets[0]
+        val length = offsets[1] - offsets[0]
+        return path[s * length + offset, n]
+    }
+
+    override fun length() = offsets[1] - offsets[0]
+}
+
 /**
  * Project position [query] onto position path [path] starting with initial guess [init].
  */
