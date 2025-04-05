@@ -15,7 +15,6 @@ class CancelableTrajcetory(
     val offsets: List<Double>
 ) : Trajectory {
 
-
     fun cancel(s: Double): DisplacementTrajectory {
         val offset = s
         return DisplacementTrajectory(
