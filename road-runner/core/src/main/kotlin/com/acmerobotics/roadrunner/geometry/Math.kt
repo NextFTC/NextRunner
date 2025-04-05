@@ -1,6 +1,6 @@
 @file:JvmName("Math")
 
-package com.acmerobotics.roadrunner
+package com.acmerobotics.roadrunner.geometry
 
 // ~10 * machine epsilon
 private const val EPS = 2.2e-15

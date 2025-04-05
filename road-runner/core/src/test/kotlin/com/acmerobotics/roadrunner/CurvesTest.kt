@@ -1,5 +1,18 @@
 package com.acmerobotics.roadrunner
 
+import com.acmerobotics.roadrunner.geometry.Arclength
+import com.acmerobotics.roadrunner.geometry.DualNum
+import com.acmerobotics.roadrunner.geometry.Internal
+import com.acmerobotics.roadrunner.geometry.Rotation2dDual
+import com.acmerobotics.roadrunner.geometry.Vector2d
+import com.acmerobotics.roadrunner.geometry.Vector2dDual
+import com.acmerobotics.roadrunner.geometry.lerp
+import com.acmerobotics.roadrunner.geometry.range
+import com.acmerobotics.roadrunner.paths.ArclengthReparamCurve2d
+import com.acmerobotics.roadrunner.paths.PositionPath
+import com.acmerobotics.roadrunner.paths.QuinticSpline1d
+import com.acmerobotics.roadrunner.paths.QuinticSpline2d
+import com.acmerobotics.roadrunner.paths.SplineHeadingPath
 import org.junit.jupiter.api.Test
 import org.knowm.xchart.QuickChart
 import org.knowm.xchart.XYChart

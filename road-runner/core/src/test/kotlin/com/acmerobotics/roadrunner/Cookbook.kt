@@ -1,5 +1,18 @@
 package com.acmerobotics.roadrunner
 
+import com.acmerobotics.roadrunner.control.MecanumKinematics
+import com.acmerobotics.roadrunner.geometry.DualNum
+import com.acmerobotics.roadrunner.geometry.Pose2d
+import com.acmerobotics.roadrunner.geometry.PoseVelocity2d
+import com.acmerobotics.roadrunner.geometry.PoseVelocity2dDual
+import com.acmerobotics.roadrunner.geometry.Rotation2d
+import com.acmerobotics.roadrunner.geometry.Rotation2dDual
+import com.acmerobotics.roadrunner.geometry.Time
+import com.acmerobotics.roadrunner.geometry.Vector2d
+import com.acmerobotics.roadrunner.geometry.Vector2dDual
+import com.acmerobotics.roadrunner.paths.TimeProfile
+import com.acmerobotics.roadrunner.paths.constantProfile
+import com.acmerobotics.roadrunner.trajectories.PositionPathSeqBuilder
 import kotlin.math.PI
 
 // TODO: label implicit arguments?

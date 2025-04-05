@@ -1,6 +1,14 @@
-package com.acmerobotics.roadrunner
+package com.acmerobotics.roadrunner.control
 
-import kotlin.math.abs
+import com.acmerobotics.roadrunner.geometry.Arclength
+import com.acmerobotics.roadrunner.geometry.DualNum
+import com.acmerobotics.roadrunner.geometry.Pose2d
+import com.acmerobotics.roadrunner.geometry.Pose2dDual
+import com.acmerobotics.roadrunner.geometry.PoseVelocity2d
+import com.acmerobotics.roadrunner.geometry.PoseVelocity2dDual
+import com.acmerobotics.roadrunner.geometry.Time
+import com.acmerobotics.roadrunner.geometry.Vector2d
+import com.acmerobotics.roadrunner.geometry.snz
 import kotlin.math.sign
 import kotlin.math.sin
 import kotlin.math.sqrt
@@ -97,20 +105,20 @@ class HolonomicController(
 
         val error = targetPose.value().minusExp(actualPose)
         return targetVelTarget +
-            PoseVelocity2d(
-                Vector2d(
-                    axialPosGain * error.position.x,
-                    lateralPosGain * error.position.y,
-                ),
-                headingGain * error.heading.log(),
-            ) +
-            PoseVelocity2d(
-                Vector2d(
-                    axialVelGain * velErrorActual.linearVel.x,
-                    lateralVelGain * velErrorActual.linearVel.y,
-                ),
-                headingVelGain * velErrorActual.angVel,
-            )
+                PoseVelocity2d(
+                    Vector2d(
+                        axialPosGain * error.position.x,
+                        lateralPosGain * error.position.y,
+                    ),
+                    headingGain * error.heading.log(),
+                ) +
+                PoseVelocity2d(
+                    Vector2d(
+                        axialVelGain * velErrorActual.linearVel.x,
+                        lateralVelGain * velErrorActual.linearVel.y,
+                    ),
+                    headingVelGain * velErrorActual.angVel,
+                )
     }
 }
 

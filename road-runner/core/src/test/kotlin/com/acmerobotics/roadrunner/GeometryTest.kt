@@ -1,5 +1,9 @@
 package com.acmerobotics.roadrunner
 
+import com.acmerobotics.roadrunner.geometry.Pose2d
+import com.acmerobotics.roadrunner.geometry.Rotation2d
+import com.acmerobotics.roadrunner.geometry.Twist2d
+import com.acmerobotics.roadrunner.geometry.Vector2d
 import org.junit.jupiter.api.Test
 import kotlin.math.PI
 import kotlin.random.Random

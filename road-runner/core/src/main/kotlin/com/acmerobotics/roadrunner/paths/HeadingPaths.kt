@@ -1,4 +1,10 @@
-package com.acmerobotics.roadrunner
+package com.acmerobotics.roadrunner.paths
+
+import com.acmerobotics.roadrunner.geometry.Arclength
+import com.acmerobotics.roadrunner.geometry.DualNum
+import com.acmerobotics.roadrunner.geometry.Internal
+import com.acmerobotics.roadrunner.geometry.Rotation2d
+import com.acmerobotics.roadrunner.geometry.Rotation2dDual
 
 /**
  * @usesMathJax
@@ -20,7 +26,7 @@ data class ConstantHeadingPath(
     @JvmField
     val length: Double,
 ) : HeadingPath {
-    override fun get(s: Double, n: Int) = Rotation2dDual.constant<Arclength>(heading, n)
+    override fun get(s: Double, n: Int) = Rotation2dDual.Companion.constant<Arclength>(heading, n)
 
     override fun length() = length
 }
@@ -45,7 +51,7 @@ data class LinearHeadingPath(
     val length: Double,
 ) : HeadingPath {
     override fun get(s: Double, n: Int) =
-        Rotation2dDual.exp(DualNum.variable<Arclength>(s, n) / length * angle) * begin
+        Rotation2dDual.Companion.exp(DualNum.Companion.variable<Arclength>(s, n) / length * angle) * begin
 
     override fun length() = length
 }
@@ -67,10 +73,10 @@ data class SplineHeadingPath(
         require(begin.size() >= 3).let {
             require(end.size() >= 3).let {
                 // s(t) = t * len
-                (DualNum.variable<Internal>(1.0, 3) * length).let { s ->
+                (DualNum.Companion.variable<Internal>(1.0, 3) * length).let { s ->
                     QuinticSpline1d(
-                        DualNum.cons(0.0, begin.velocity()).reparam(s),
-                        DualNum.cons(end.value() - begin.value(), end.velocity()).reparam(s),
+                        DualNum.Companion.cons(0.0, begin.velocity()).reparam(s),
+                        DualNum.Companion.cons(end.value() - begin.value(), end.velocity()).reparam(s),
                     )
                 }
             }
@@ -79,11 +85,11 @@ data class SplineHeadingPath(
     )
 
     override fun get(s: Double, n: Int) =
-        Rotation2dDual.exp(
+        Rotation2dDual.Companion.exp(
             spline[s / length, n]
                 .reparam(
                     // t(s) = s / len
-                    DualNum.variable<Arclength>(s, n) / length
+                    DualNum.Companion.variable<Arclength>(s, n) / length
                 )
         ) * begin
 

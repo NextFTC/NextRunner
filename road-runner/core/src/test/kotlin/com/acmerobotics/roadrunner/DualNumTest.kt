@@ -1,5 +1,6 @@
 package com.acmerobotics.roadrunner
 
+import com.acmerobotics.roadrunner.geometry.DualNum
 import kotlin.math.cos
 import kotlin.math.sin
 import kotlin.math.sqrt

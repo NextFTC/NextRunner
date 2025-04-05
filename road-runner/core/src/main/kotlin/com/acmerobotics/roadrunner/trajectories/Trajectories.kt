@@ -1,4 +1,12 @@
-package com.acmerobotics.roadrunner
+package com.acmerobotics.roadrunner.trajectories
+
+import com.acmerobotics.roadrunner.paths.CancelableProfile
+import com.acmerobotics.roadrunner.paths.DisplacementProfile
+import com.acmerobotics.roadrunner.paths.TimeProfile
+import com.acmerobotics.roadrunner.geometry.Pose2dDual
+import com.acmerobotics.roadrunner.geometry.Time
+import com.acmerobotics.roadrunner.geometry.Vector2d
+import com.acmerobotics.roadrunner.paths.PosePath
 
 interface Trajectory {
     fun length(): Double
@@ -41,7 +49,7 @@ class DisplacementTrajectory(
 
     override fun length() = path.length()
 
-    fun project(query: Vector2d, init: Double) = project(path, query, init)
+    fun project(query: Vector2d, init: Double) = com.acmerobotics.roadrunner.paths.project(path, query, init)
 
     override operator fun get(s: Double): Pose2dDual<Time> = path[s, 3].reparam(profile[s])
 }

@@ -1,4 +1,7 @@
-package com.acmerobotics.roadrunner
+package com.acmerobotics.roadrunner.paths
+
+import com.acmerobotics.roadrunner.geometry.DualNum
+import com.acmerobotics.roadrunner.geometry.Internal
 
 /**
  * @usesMathJax

@@ -1,6 +1,11 @@
 @file:JvmName("PosePaths")
 
-package com.acmerobotics.roadrunner
+package com.acmerobotics.roadrunner.paths
+
+import com.acmerobotics.roadrunner.geometry.Arclength
+import com.acmerobotics.roadrunner.geometry.Pose2dDual
+import com.acmerobotics.roadrunner.geometry.Vector2d
+import com.acmerobotics.roadrunner.geometry.clamp
 
 /**
  * @usesMathJax
@@ -71,7 +76,7 @@ data class CompositePosePath(
 
     override fun get(s: Double, n: Int): Pose2dDual<Arclength> {
         if (s > length) {
-            return Pose2dDual.constant(paths.last().end(1).value(), n)
+            return Pose2dDual.Companion.constant(paths.last().end(1).value(), n)
         }
 
         for ((offset, path) in offsets.zip(paths).reversed()) {
@@ -80,7 +85,7 @@ data class CompositePosePath(
             }
         }
 
-        return Pose2dDual.constant(paths.first()[0.0, 1].value(), n)
+        return Pose2dDual.Companion.constant(paths.first()[0.0, 1].value(), n)
     }
 
     override fun length() = length

@@ -1,4 +1,4 @@
-package com.acmerobotics.roadrunner
+package com.acmerobotics.roadrunner.geometry
 
 import kotlin.math.min
 

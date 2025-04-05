@@ -2,6 +2,13 @@ package com.acmerobotics.roadrunner
 
 import com.acmerobotics.dashboard.canvas.Canvas
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket
+import com.acmerobotics.roadrunner.geometry.Pose2d
+import com.acmerobotics.roadrunner.geometry.Rotation2d
+import com.acmerobotics.roadrunner.paths.ProfileAccelConstraint
+import com.acmerobotics.roadrunner.paths.TranslationalVelConstraint
+import com.acmerobotics.roadrunner.trajectories.TimeTrajectory
+import com.acmerobotics.roadrunner.trajectories.TimeTurn
+import com.acmerobotics.roadrunner.trajectories.TurnConstraints
 import kotlin.math.PI
 import kotlin.test.Test
 import kotlin.test.assertEquals

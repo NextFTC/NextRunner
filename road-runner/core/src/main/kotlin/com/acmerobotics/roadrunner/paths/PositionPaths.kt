@@ -1,5 +1,16 @@
 @file:JvmName("PositionPaths")
-package com.acmerobotics.roadrunner
+
+package com.acmerobotics.roadrunner.paths
+
+import com.acmerobotics.roadrunner.geometry.Arclength
+import com.acmerobotics.roadrunner.geometry.DualNum
+import com.acmerobotics.roadrunner.geometry.IntegralScanResult
+import com.acmerobotics.roadrunner.geometry.Internal
+import com.acmerobotics.roadrunner.geometry.Vector2d
+import com.acmerobotics.roadrunner.geometry.Vector2dDual
+import com.acmerobotics.roadrunner.geometry.clamp
+import com.acmerobotics.roadrunner.geometry.integralScan
+import com.acmerobotics.roadrunner.geometry.lerpLookup
 
 /**
  * @usesMathJax
@@ -82,7 +93,7 @@ data class Line(
     )
 
     override fun get(param: Double, n: Int) =
-        DualNum.variable<Arclength>(param, n) * dir + begin
+        DualNum.Companion.variable<Arclength>(param, n) * dir + begin
 
     override fun length() = length
 }
@@ -156,7 +167,7 @@ data class CompositePositionPath<Param> @JvmOverloads constructor(
 
     override fun get(param: Double, n: Int): Vector2dDual<Param> {
         if (param > length) {
-            return Vector2dDual.constant(paths.last().end(1).value(), n)
+            return Vector2dDual.Companion.constant(paths.last().end(1).value(), n)
         }
 
         for ((offset, path) in offsets.zip(paths).reversed()) {
@@ -165,7 +176,7 @@ data class CompositePositionPath<Param> @JvmOverloads constructor(
             }
         }
 
-        return Vector2dDual.constant(paths.first()[0.0, 1].value(), n)
+        return Vector2dDual.Companion.constant(paths.first()[0.0, 1].value(), n)
     }
 
     override fun length() = length

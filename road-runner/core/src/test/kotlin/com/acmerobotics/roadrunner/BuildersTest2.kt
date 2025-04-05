@@ -1,5 +1,9 @@
 package com.acmerobotics.roadrunner
 
+import com.acmerobotics.roadrunner.geometry.Rotation2d
+import com.acmerobotics.roadrunner.geometry.Vector2d
+import com.acmerobotics.roadrunner.trajectories.PosePathSeqBuilder
+import com.acmerobotics.roadrunner.trajectories.PositionPathSeqBuilder
 import kotlin.math.PI
 import kotlin.test.Test
 import kotlin.test.assertEquals

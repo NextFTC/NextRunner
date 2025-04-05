@@ -1,5 +1,23 @@
 package com.acmerobotics.roadrunner
 
+import com.acmerobotics.roadrunner.geometry.Arclength
+import com.acmerobotics.roadrunner.geometry.DualNum
+import com.acmerobotics.roadrunner.geometry.Pose2d
+import com.acmerobotics.roadrunner.geometry.Pose2dDual
+import com.acmerobotics.roadrunner.geometry.Rotation2d
+import com.acmerobotics.roadrunner.geometry.Rotation2dDual
+import com.acmerobotics.roadrunner.geometry.Vector2d
+import com.acmerobotics.roadrunner.geometry.Vector2dDual
+import com.acmerobotics.roadrunner.paths.AccelConstraint
+import com.acmerobotics.roadrunner.paths.VelConstraint
+import com.acmerobotics.roadrunner.trajectories.IdentityPoseMap
+import com.acmerobotics.roadrunner.trajectories.PoseMap
+import com.acmerobotics.roadrunner.trajectories.TimeTrajectory
+import com.acmerobotics.roadrunner.trajectories.TimeTurn
+import com.acmerobotics.roadrunner.trajectories.TrajectoryBuilder
+import com.acmerobotics.roadrunner.trajectories.TrajectoryBuilderParams
+import com.acmerobotics.roadrunner.trajectories.TurnConstraints
+
 private fun seqCons(hd: Action, tl: Action): Action =
     if (tl is SequentialAction) {
         SequentialAction(listOf(hd) + tl.initialActions)

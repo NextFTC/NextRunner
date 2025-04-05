@@ -1,5 +1,32 @@
-package com.acmerobotics.roadrunner
+package com.acmerobotics.roadrunner.trajectories
 
+import com.acmerobotics.roadrunner.paths.AccelConstraint
+import com.acmerobotics.roadrunner.paths.CompositeAccelConstraint
+import com.acmerobotics.roadrunner.paths.CompositeVelConstraint
+import com.acmerobotics.roadrunner.paths.ProfileParams
+import com.acmerobotics.roadrunner.paths.VelConstraint
+import com.acmerobotics.roadrunner.geometry.Arclength
+import com.acmerobotics.roadrunner.geometry.DualNum
+import com.acmerobotics.roadrunner.geometry.Pose2d
+import com.acmerobotics.roadrunner.geometry.Pose2dDual
+import com.acmerobotics.roadrunner.geometry.Rotation2d
+import com.acmerobotics.roadrunner.geometry.Rotation2dDual
+import com.acmerobotics.roadrunner.geometry.Vector2d
+import com.acmerobotics.roadrunner.paths.ArclengthReparamCurve2d
+import com.acmerobotics.roadrunner.paths.CompositePosePath
+import com.acmerobotics.roadrunner.paths.CompositePositionPath
+import com.acmerobotics.roadrunner.paths.ConstantHeadingPath
+import com.acmerobotics.roadrunner.paths.HeadingPosePath
+import com.acmerobotics.roadrunner.paths.Line
+import com.acmerobotics.roadrunner.paths.LinearHeadingPath
+import com.acmerobotics.roadrunner.paths.PosePath
+import com.acmerobotics.roadrunner.paths.PositionPath
+import com.acmerobotics.roadrunner.paths.PositionPathView
+import com.acmerobotics.roadrunner.paths.QuinticSpline1d
+import com.acmerobotics.roadrunner.paths.QuinticSpline2d
+import com.acmerobotics.roadrunner.paths.SplineHeadingPath
+import com.acmerobotics.roadrunner.paths.TangentPath
+import com.acmerobotics.roadrunner.paths.profile
 import kotlin.math.PI
 import kotlin.math.abs
 
@@ -591,9 +618,9 @@ class PathBuilder private constructor(
 
 fun interface PoseMap {
     fun map(pose: Pose2dDual<Arclength>): Pose2dDual<Arclength>
-}
 
-fun PoseMap.map(pose: Pose2d) = map(Pose2dDual.constant(pose, 1)).value()
+    fun map(pose: Pose2d) = map(Pose2dDual.constant(pose, 1)).value()
+}
 
 class IdentityPoseMap : PoseMap {
     override fun map(pose: Pose2dDual<Arclength>) = pose

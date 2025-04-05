@@ -1,5 +1,13 @@
-package com.acmerobotics.roadrunner
+package com.acmerobotics.roadrunner.control
 
+import com.acmerobotics.roadrunner.geometry.Arclength
+import com.acmerobotics.roadrunner.geometry.DualNum
+import com.acmerobotics.roadrunner.geometry.Pose2dDual
+import com.acmerobotics.roadrunner.geometry.PoseVelocity2dDual
+import com.acmerobotics.roadrunner.geometry.Twist2dDual
+import com.acmerobotics.roadrunner.geometry.Vector2dDual
+import com.acmerobotics.roadrunner.paths.PosePath
+import com.acmerobotics.roadrunner.paths.VelConstraint
 import kotlin.math.abs
 
 /**

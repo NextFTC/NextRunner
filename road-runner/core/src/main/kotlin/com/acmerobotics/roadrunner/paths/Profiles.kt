@@ -1,7 +1,16 @@
 @file:JvmName("Profiles")
 
-package com.acmerobotics.roadrunner
+package com.acmerobotics.roadrunner.paths
 
+import com.acmerobotics.roadrunner.geometry.Arclength
+import com.acmerobotics.roadrunner.geometry.DualNum
+import com.acmerobotics.roadrunner.geometry.MinMax
+import com.acmerobotics.roadrunner.geometry.Pose2dDual
+import com.acmerobotics.roadrunner.geometry.Time
+import com.acmerobotics.roadrunner.geometry.integralScan
+import com.acmerobotics.roadrunner.geometry.lerpLookupMap
+import com.acmerobotics.roadrunner.geometry.range
+import com.acmerobotics.roadrunner.geometry.rangeCentered
 import kotlin.math.abs
 import kotlin.math.ceil
 import kotlin.math.max

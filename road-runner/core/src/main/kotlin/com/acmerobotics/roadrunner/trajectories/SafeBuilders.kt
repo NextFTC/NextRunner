@@ -1,4 +1,12 @@
-package com.acmerobotics.roadrunner
+package com.acmerobotics.roadrunner.trajectories
+
+import com.acmerobotics.roadrunner.paths.AccelConstraint
+import com.acmerobotics.roadrunner.paths.VelConstraint
+import com.acmerobotics.roadrunner.geometry.Arclength
+import com.acmerobotics.roadrunner.geometry.Pose2d
+import com.acmerobotics.roadrunner.geometry.Rotation2d
+import com.acmerobotics.roadrunner.geometry.Vector2d
+import com.acmerobotics.roadrunner.paths.PositionPath
 
 class SafePathBuilder internal constructor(private val pathBuilder: PathBuilder) {
     constructor(beginPose: Pose2d, beginTangent: Rotation2d, eps: Double) :

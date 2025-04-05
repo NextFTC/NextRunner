@@ -1,6 +1,6 @@
 @file:JvmName("Geometry")
 
-package com.acmerobotics.roadrunner
+package com.acmerobotics.roadrunner.geometry
 
 import kotlin.math.atan2
 import kotlin.math.cos
