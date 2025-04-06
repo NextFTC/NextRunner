@@ -10,29 +10,25 @@ import com.acmerobotics.roadrunner.paths.PosePath
 import com.acmerobotics.roadrunner.paths.VelConstraint
 import kotlin.math.abs
 
+interface WheelIncrements<Param>
+
+/**
+ * Represents the velocities of the individual drive wheels.
+ */
+interface WheelVelocities<Param> {
+    /**
+     * Returns a list of all wheel velocities.
+     * The order should be consistent for a given implementation.
+     */
+    fun all(): List<DualNum<Param>>
+}
+
 /**
  * Represents the kinematics of a robot drive train, providing methods for
  * inverse kinematics and velocity constraints based on wheel speeds.
  */
-interface RobotKinematics {
-    /**
-     * Distance between wheels on opposite sides (or equivalent measure).
-     */
-    val trackWidth: Double
-
-
-    fun <Param> forward(w: Map<String, DualNum<Param>>): Twist2dDual<Param>
-
-    /**
-     * Represents the velocities of the individual drive wheels.
-     */
-    interface WheelVelocities<Param> {
-        /**
-         * Returns a list of all wheel velocities.
-         * The order should be consistent for a given implementation.
-         */
-        fun all(): List<DualNum<Param>>
-    }
+interface RobotKinematics<in WI: WheelIncrements<*>, out WV: WheelVelocities<*>> {
+    fun <Param> forward(w: WI): Twist2dDual<Param>
 
     /**
      * Performs inverse kinematics: computes wheel velocities required to achieve
@@ -51,10 +47,11 @@ interface RobotKinematics {
  * distance traveled in the strafe direction
  */
 data class MecanumKinematics @JvmOverloads constructor(
-    override val trackWidth: Double,
+    @JvmField
+    val trackWidth: Double,
     @JvmField
     val lateralMultiplier: Double = 1.0
-) : RobotKinematics {
+) : RobotKinematics<MecanumKinematics.MecanumWheelIncrements<*>, WheelVelocities<*>> {
     /**
      * @param[wheelbase] distance between wheels on the same side; see the diagram in [MecanumKinematics]
      */
@@ -64,7 +61,7 @@ data class MecanumKinematics @JvmOverloads constructor(
         lateralMultiplier: Double = 1.0
     ) : this((trackWidth + wheelbase) / 2, lateralMultiplier)
 
-    data class WheelIncrements<Param>(
+    data class MecanumWheelIncrements<Param>(
         @JvmField
         val leftFront: DualNum<Param>,
         @JvmField
@@ -73,33 +70,21 @@ data class MecanumKinematics @JvmOverloads constructor(
         val rightBack: DualNum<Param>,
         @JvmField
         val rightFront: DualNum<Param>,
-    ) : Map<String, DualNum<Param>> by mapOf(
-        "leftFront" to leftFront,
-        "leftBack" to leftBack,
-        "rightBack" to rightBack,
-        "rightFront" to rightFront,
-    )
+    ) : WheelIncrements<Param>
 
-    fun <Param> forward(w: WheelIncrements<Param>): Twist2dDual<Param> = Twist2dDual(
-        Vector2dDual(
-            (w.leftFront + w.leftBack + w.rightBack + w.rightFront) * 0.25,
-            (-w.leftFront + w.leftBack - w.rightBack + w.rightFront) * (0.25 / lateralMultiplier),
-        ),
-        (-w.leftFront - w.leftBack + w.rightBack + w.rightFront) * (0.25 / trackWidth),
-    )
+    override fun <Param> forward(w: MecanumWheelIncrements<*>): Twist2dDual<Param> {
+        w as MecanumWheelIncrements<Param>
 
-    override fun <Param> forward(w: Map<String, DualNum<Param>>): Twist2dDual<Param> {
-        return forward(
-            WheelIncrements(
-                w["leftFront"]!!,
-                w["leftBack"]!!,
-                w["rightBack"]!!,
-                w["rightFront"]!!
-            )
+        return Twist2dDual(
+            Vector2dDual(
+                (w.leftFront + w.leftBack + w.rightBack + w.rightFront) * 0.25,
+                (-w.leftFront + w.leftBack - w.rightBack + w.rightFront) * (0.25 / lateralMultiplier),
+            ),
+            (-w.leftFront - w.leftBack + w.rightBack + w.rightFront) * (0.25 / trackWidth),
         )
     }
 
-    data class WheelVelocities<Param>(
+    data class MecanumWheelVelocities<Param>(
         @JvmField
         val leftFront: DualNum<Param>,
         @JvmField
@@ -108,11 +93,11 @@ data class MecanumKinematics @JvmOverloads constructor(
         val rightBack: DualNum<Param>,
         @JvmField
         val rightFront: DualNum<Param>,
-    ) : RobotKinematics.WheelVelocities<Param> {
+    ) : WheelVelocities<Param> {
         override fun all() = listOf(leftFront, leftBack, rightBack, rightFront)
     }
 
-    override fun <Param> inverse(t: PoseVelocity2dDual<Param>) = WheelVelocities(
+    override fun <Param> inverse(t: PoseVelocity2dDual<Param>) = MecanumWheelVelocities(
         t.linearVel.x - t.linearVel.y * lateralMultiplier - t.angVel * trackWidth,
         t.linearVel.x + t.linearVel.y * lateralMultiplier - t.angVel * trackWidth,
         t.linearVel.x - t.linearVel.y * lateralMultiplier + t.angVel * trackWidth,
@@ -124,44 +109,43 @@ data class MecanumKinematics @JvmOverloads constructor(
  * @param[trackWidth] distance between wheels on opposite sides; see the diagram below
  * ![Wheelbase and track width diagram](https://upload.wikimedia.org/wikipedia/commons/5/52/Wheelbase_and_Track.png)
  */
-data class TankKinematics(override val trackWidth: Double) : RobotKinematics {
-    data class WheelIncrements<Param>(
+data class TankKinematics(@JvmField val trackWidth: Double) :
+    RobotKinematics<TankKinematics.TankWheelIncrements<*>, TankKinematics.TankWheelVelocities<*>> {
+
+    data class TankWheelIncrements<Param>(
         @JvmField
         val left: DualNum<Param>,
         @JvmField
         val right: DualNum<Param>,
-    ) : Map<String, DualNum<Param>> by mapOf(
-        "left" to left,
-        "right" to right,
-    )
+    ) : WheelIncrements<Param>
 
-    fun <Param> forward(w: WheelIncrements<Param>) = Twist2dDual(
-        Vector2dDual(
-            (w.left + w.right) * 0.5,
-            DualNum.constant(0.0, w.left.size()),
-        ),
-        (-w.left + w.right) / trackWidth,
-    )
+    override fun <Param> forward(w: TankWheelIncrements<*>): Twist2dDual<Param> {
+        w as TankWheelIncrements<Param>
 
-    override fun <Param> forward(w: Map<String, DualNum<Param>>): Twist2dDual<Param> {
-        return forward(WheelIncrements(w["left"]!!, w["right"]!!))
+        return Twist2dDual(
+            Vector2dDual(
+                (w.left + w.right) * 0.5,
+                DualNum.constant(0.0, w.left.size()),
+            ),
+            (-w.left + w.right) / trackWidth,
+        )
     }
 
-    data class WheelVelocities<Param>(
+    data class TankWheelVelocities<Param>(
         @JvmField
         val left: DualNum<Param>,
         @JvmField
         val right: DualNum<Param>,
-    ) : RobotKinematics.WheelVelocities<Param> {
+    ) : WheelVelocities<Param> {
         override fun all() = listOf(left, right)
     }
 
-    override fun <Param> inverse(t: PoseVelocity2dDual<Param>): WheelVelocities<Param> {
+    override fun <Param> inverse(t: PoseVelocity2dDual<Param>): TankWheelVelocities<Param> {
         require(t.linearVel.y.values().all { abs(it) < 1e-6 }) {
             "Tank drive does not support lateral motion"
         }
 
-        return WheelVelocities(
+        return TankWheelVelocities(
             t.linearVel.x - t.angVel * 0.5 * trackWidth,
             t.linearVel.x + t.angVel * 0.5 * trackWidth,
         )
@@ -170,7 +154,7 @@ data class TankKinematics(override val trackWidth: Double) : RobotKinematics {
 
 class WheelVelConstraint(
     @JvmField
-    val kinematics: RobotKinematics,
+    val kinematics: RobotKinematics<*, *>,
     @JvmField
     val maxWheelVel: Double
 ) : VelConstraint {
