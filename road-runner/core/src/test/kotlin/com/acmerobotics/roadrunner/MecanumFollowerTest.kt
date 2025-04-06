@@ -3,6 +3,7 @@ package com.acmerobotics.roadrunner
 import com.acmerobotics.roadrunner.control.HolonomicController
 import com.acmerobotics.roadrunner.control.MecanumKinematics
 import com.acmerobotics.roadrunner.control.MotorFeedforward
+import com.acmerobotics.roadrunner.control.WheelVelConstraint
 import com.acmerobotics.roadrunner.geometry.DualNum
 import com.acmerobotics.roadrunner.geometry.Pose2d
 import com.acmerobotics.roadrunner.geometry.PoseVelocity2d
@@ -57,7 +58,7 @@ class MecanumFollowerTest {
                 path,
                 0.0,
                 // TODO: angular velocity constraint
-                kinematics.WheelVelConstraint(50.0),
+                WheelVelConstraint(kinematics, 50.0),
                 ProfileAccelConstraint(-25.0, 25.0),
             ).baseProfile
         )
@@ -104,14 +105,14 @@ class MecanumFollowerTest {
 
             // TODO: should this be a list?
             // maybe there should just be a list secondary ctor
-            val wheelIncrements = MecanumKinematics.WheelIncrements<Time>(
+            val wheelIncrements = MecanumKinematics.MecanumWheelIncrements<Time>(
                 DualNum.constant(posDeltas[0], 2),
                 DualNum.constant(posDeltas[1], 2),
                 DualNum.constant(posDeltas[2], 2),
                 DualNum.constant(posDeltas[3], 2),
             )
 
-            poseEstimate += kinematics.forward(wheelIncrements).value()
+            poseEstimate += kinematics.forward<Time>(wheelIncrements).value()
         }
 
         val graph = XYChart(600, 400)
@@ -162,7 +163,7 @@ class MecanumFollowerTest {
                 path,
                 5.0,
                 // TODO: angular velocity constraint
-                kinematics.WheelVelConstraint(50.0),
+                WheelVelConstraint(kinematics, 50.0),
                 ProfileAccelConstraint(-25.0, 25.0),
             ).baseProfile
 
@@ -239,14 +240,14 @@ class MecanumFollowerTest {
 
             // TODO: should this be a list?
             // maybe there should just be a list secondary ctor
-            val wheelIncrements = MecanumKinematics.WheelIncrements<Time>(
+            val wheelIncrements = MecanumKinematics.MecanumWheelIncrements<Time>(
                 DualNum.constant(posDeltas[0], 2),
                 DualNum.constant(posDeltas[1], 2),
                 DualNum.constant(posDeltas[2], 2),
                 DualNum.constant(posDeltas[3], 2),
             )
 
-            val incrDual = kinematics.forward(wheelIncrements)
+            val incrDual = kinematics.forward<Time>(wheelIncrements)
             poseEstimate += incrDual.value()
             // TODO: which angle do you use to transform the velocity?
             poseVelocity = poseEstimate.heading * incrDual.velocity().value()

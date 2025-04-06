@@ -155,7 +155,7 @@ fun persistentBuilders() {
 //
 // }
 
-fun setWheelPowers(powers: MecanumKinematics.WheelVelocities<Time>) {
+fun setWheelPowers(powers: MecanumKinematics.MecanumWheelVelocities<Time>) {
 }
 
 fun fieldCentric(kinematics: MecanumKinematics, poseEstimate: Pose2d, leftStick: Vector2d, rightStick: Vector2d) {
@@ -169,8 +169,8 @@ fun fieldCentric(kinematics: MecanumKinematics, poseEstimate: Pose2d, leftStick:
     )
 }
 
-fun getWheelIncrements(): MecanumKinematics.WheelIncrements<Time> {
-    return MecanumKinematics.WheelIncrements(
+fun getWheelIncrements(): MecanumKinematics.MecanumWheelIncrements<Time> {
+    return MecanumKinematics.MecanumWheelIncrements(
         DualNum(doubleArrayOf(0.0)),
         DualNum(doubleArrayOf(0.0)),
         DualNum(doubleArrayOf(0.0)),
@@ -178,7 +178,7 @@ fun getWheelIncrements(): MecanumKinematics.WheelIncrements<Time> {
     )
 }
 
-fun setWheelVelocities(vels: MecanumKinematics.WheelVelocities<Time>) {
+fun setWheelVelocities(vels: MecanumKinematics.MecanumWheelVelocities<Time>) {
 }
 
 val TRANS_GAIN = 10.0
@@ -191,7 +191,7 @@ fun goToPoint(kinematics: MecanumKinematics, initialPoseEstimate: Pose2d, target
         // TODO: forward() may need some calculus to handle velocity measurements
         //  (eeeeeek then we need a dualized WheelIncr)
         // here it would be nice as a termination criterion
-        poseEstimate += kinematics.forward(getWheelIncrements()).value()
+        poseEstimate += kinematics.forward<Time>(getWheelIncrements()).value()
         val error = targetPose.minusExp(poseEstimate)
         // TODO: one could write some sugar
         // inverse() could take a Twist2
@@ -225,7 +225,7 @@ fun turnWithProfile(
 
     var poseEstimate = initialPoseEstimate
     while (true) {
-        poseEstimate += kinematics.forward(getWheelIncrements()).value()
+        poseEstimate += kinematics.forward<Time>(getWheelIncrements()).value()
 
         val targetTurn = profile[clock()]
         val targetRot = initialPoseEstimate.heading + targetTurn[0]

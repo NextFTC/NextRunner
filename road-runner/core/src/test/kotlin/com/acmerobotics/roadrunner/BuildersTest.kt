@@ -1,6 +1,7 @@
 package com.acmerobotics.roadrunner
 
 import com.acmerobotics.roadrunner.control.MecanumKinematics
+import com.acmerobotics.roadrunner.control.WheelVelConstraint
 import com.acmerobotics.roadrunner.geometry.Pose2d
 import com.acmerobotics.roadrunner.geometry.Rotation2d
 import com.acmerobotics.roadrunner.geometry.Rotation2dDual
@@ -440,7 +441,7 @@ fun chartSpline(q: QuinticSpline1d): XYChart {
                     0.0,
                     MinVelConstraint(
                         listOf(
-                            MecanumKinematics(7.0, 1.0).WheelVelConstraint(10.0),
+                            WheelVelConstraint(MecanumKinematics(7.0, 1.0), 10.0),
                             AngularVelConstraint(PI / 4)
                         )
                     ),
@@ -473,7 +474,7 @@ fun chartSpline(q: QuinticSpline1d): XYChart {
                     0.0,
                     MinVelConstraint(
                         listOf(
-                            MecanumKinematics(7.0, 1.0).WheelVelConstraint(10.0),
+                            WheelVelConstraint(MecanumKinematics(7.0, 1.0),10.0),
                             AngularVelConstraint(PI / 4)
                         )
                     ),

@@ -1,6 +1,7 @@
 package com.acmerobotics.roadrunner
 
 import com.acmerobotics.roadrunner.control.MecanumKinematics
+import com.acmerobotics.roadrunner.control.WheelVelConstraint
 import com.acmerobotics.roadrunner.geometry.Pose2d
 import com.acmerobotics.roadrunner.geometry.Vector2d
 import com.acmerobotics.roadrunner.geometry.clamp
@@ -237,7 +238,7 @@ class ProfilesTest {
                     0.0,
                     MinVelConstraint(
                         listOf(
-                            MecanumKinematics(10.0).WheelVelConstraint(10.0),
+                            WheelVelConstraint(MecanumKinematics(10.0), 10.0),
                             AngularVelConstraint(10.0)
                         )
                     ),

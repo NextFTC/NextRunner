@@ -2,6 +2,7 @@ package com.acmerobotics.roadrunner
 
 import com.acmerobotics.roadrunner.control.MecanumKinematics
 import com.acmerobotics.roadrunner.control.TankKinematics
+import com.acmerobotics.roadrunner.control.WheelVelConstraint
 import com.acmerobotics.roadrunner.geometry.PoseVelocity2d
 import com.acmerobotics.roadrunner.geometry.PoseVelocity2dDual
 import com.acmerobotics.roadrunner.geometry.Rotation2d
@@ -33,8 +34,8 @@ class KinematicsTest {
 
             val vs = kinematics.inverse(PoseVelocity2dDual.constant<Time>(t, 1)).all()
 
-            val t2 = kinematics.forward(
-                MecanumKinematics.WheelIncrements(
+            val t2 = kinematics.forward<Time>(
+                MecanumKinematics.MecanumWheelIncrements(
                     vs[0], vs[1], vs[2], vs[3],
                 )
             ).value()
@@ -69,7 +70,7 @@ class KinematicsTest {
         val profile = profile(
             TEST_PROFILE_PARAMS,
             path, 0.0,
-            kinematics.WheelVelConstraint(10.0),
+            WheelVelConstraint(kinematics, 10.0),
             ProfileAccelConstraint(-10.0, 10.0),
         ).baseProfile
 
@@ -100,8 +101,8 @@ class KinematicsTest {
 
             val vs = kinematics.inverse(PoseVelocity2dDual.constant<Time>(t, 1)).all()
 
-            val t2 = kinematics.forward(
-                TankKinematics.WheelIncrements(
+            val t2 = kinematics.forward<Time>(
+                TankKinematics.TankWheelIncrements(
                     vs[0], vs[1],
                 )
             ).value()
@@ -136,7 +137,7 @@ class KinematicsTest {
         val profile = profile(
             TEST_PROFILE_PARAMS,
             path, 0.0,
-            kinematics.WheelVelConstraint(10.0),
+            WheelVelConstraint(kinematics,10.0),
             ProfileAccelConstraint(-10.0, 10.0),
         ).baseProfile
 

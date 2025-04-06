@@ -2,6 +2,7 @@ package com.acmerobotics.roadrunner
 
 import com.acmerobotics.roadrunner.control.RamseteController
 import com.acmerobotics.roadrunner.control.TankKinematics
+import com.acmerobotics.roadrunner.control.WheelVelConstraint
 import com.acmerobotics.roadrunner.geometry.Pose2d
 import com.acmerobotics.roadrunner.geometry.PoseVelocity2dDual
 import com.acmerobotics.roadrunner.geometry.Time
@@ -54,7 +55,7 @@ class RamseteTest {
             profile(
                 TEST_PROFILE_PARAMS,
                 path, 0.0,
-                kinematics.WheelVelConstraint(10.0),
+                WheelVelConstraint(kinematics, 10.0),
                 ProfileAccelConstraint(-20.0, 20.0),
             ).baseProfile
         )
@@ -150,7 +151,7 @@ class RamseteTest {
             profile(
                 TEST_PROFILE_PARAMS,
                 path, 0.0,
-                kinematics.WheelVelConstraint(10.0),
+                WheelVelConstraint(kinematics, 10.0),
                 ProfileAccelConstraint(-20.0, 20.0),
             ).baseProfile
         )
