@@ -1,6 +1,6 @@
 @file:JvmName("Actions")
 
-package com.acmerobotics.roadrunner
+package com.acmerobotics.roadrunner.actions
 
 import com.acmerobotics.dashboard.canvas.Canvas
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket
@@ -20,6 +20,22 @@ fun interface Action {
      * Draws a preview of the action on canvas [fieldOverlay].
      */
     fun preview(fieldOverlay: Canvas) {}
+}
+
+abstract class InitLoopAction : Action {
+    var initialized = false
+
+    abstract fun init(p: TelemetryPacket)
+    abstract fun loop(p: TelemetryPacket): Boolean
+
+    final override fun run(p: TelemetryPacket): Boolean {
+        if (!initialized) {
+            init(p)
+            initialized = true
+        }
+
+        return loop(p)
+    }
 }
 
 /**

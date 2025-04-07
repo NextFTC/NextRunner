@@ -1,5 +1,6 @@
 package com.acmerobotics.roadrunner
 
+import com.acmerobotics.roadrunner.actions.TrajectoryActionBuilder
 import com.acmerobotics.dashboard.canvas.Canvas
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket
 import com.acmerobotics.roadrunner.geometry.Pose2d

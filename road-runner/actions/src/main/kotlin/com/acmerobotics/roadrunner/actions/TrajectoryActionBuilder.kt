@@ -1,4 +1,4 @@
-package com.acmerobotics.roadrunner
+package com.acmerobotics.roadrunner.actions
 
 import com.acmerobotics.roadrunner.geometry.Arclength
 import com.acmerobotics.roadrunner.geometry.DualNum
@@ -17,6 +17,7 @@ import com.acmerobotics.roadrunner.trajectories.TimeTurn
 import com.acmerobotics.roadrunner.trajectories.TrajectoryBuilder
 import com.acmerobotics.roadrunner.trajectories.TrajectoryBuilderParams
 import com.acmerobotics.roadrunner.trajectories.TurnConstraints
+import kotlin.compareTo
 
 private fun seqCons(hd: Action, tl: Action): Action =
     if (tl is SequentialAction) {
