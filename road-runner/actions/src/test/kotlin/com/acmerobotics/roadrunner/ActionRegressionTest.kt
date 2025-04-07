@@ -3,6 +3,7 @@ package com.acmerobotics.roadrunner
 import com.acmerobotics.roadrunner.actions.TrajectoryActionBuilder
 import com.acmerobotics.dashboard.canvas.Canvas
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket
+import com.acmerobotics.roadrunner.actions.Action
 import com.acmerobotics.roadrunner.geometry.Pose2d
 import com.acmerobotics.roadrunner.geometry.Rotation2d
 import com.acmerobotics.roadrunner.paths.ProfileAccelConstraint

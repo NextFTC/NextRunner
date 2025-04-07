@@ -2,6 +2,9 @@ package com.acmerobotics.roadrunner
 
 import com.acmerobotics.dashboard.canvas.Canvas
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket
+import com.acmerobotics.roadrunner.actions.Action
+import com.acmerobotics.roadrunner.actions.ParallelAction
+import com.acmerobotics.roadrunner.actions.SequentialAction
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 
