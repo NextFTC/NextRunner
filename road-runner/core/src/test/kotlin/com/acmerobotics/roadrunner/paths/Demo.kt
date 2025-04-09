@@ -1,4 +1,4 @@
-package com.acmerobotics.roadrunner
+package com.acmerobotics.roadrunner.paths
 
 import com.acmerobotics.roadrunner.geometry.DualNum
 import com.acmerobotics.roadrunner.geometry.Pose2d
@@ -8,12 +8,7 @@ import com.acmerobotics.roadrunner.geometry.Rotation2dDual
 import com.acmerobotics.roadrunner.geometry.Time
 import com.acmerobotics.roadrunner.geometry.Twist2d
 import com.acmerobotics.roadrunner.geometry.Vector2dDual
-import com.acmerobotics.roadrunner.paths.ArclengthReparamCurve2d
-import com.acmerobotics.roadrunner.paths.DisplacementProfile
-import com.acmerobotics.roadrunner.paths.QuinticSpline1d
-import com.acmerobotics.roadrunner.paths.QuinticSpline2d
-import com.acmerobotics.roadrunner.paths.TangentPath
-import com.acmerobotics.roadrunner.paths.project
+import com.acmerobotics.roadrunner.saveChart
 import org.junit.jupiter.api.Test
 import org.knowm.xchart.XYChartBuilder
 import org.knowm.xchart.style.markers.Circle
@@ -24,7 +19,7 @@ class Demo {
     fun test() {
         val path = TangentPath(
             ArclengthReparamCurve2d(
-                QuinticSpline2d(
+                QuinticSpline2dInternal(
                     QuinticSpline1d(
                         DualNum(doubleArrayOf(0.0, 40.0, 0.0)),
                         DualNum(doubleArrayOf(80.0, 40.0, 0.0)),
@@ -48,10 +43,10 @@ class Demo {
         var s = 0.0
         var pose = Pose2dDual<Time>(
             Vector2dDual(
-                DualNum.constant(5.0, 3),
-                DualNum.constant(5.0, 3),
+                DualNum.Companion.constant(5.0, 3),
+                DualNum.Companion.constant(5.0, 3),
             ),
-            Rotation2dDual.exp(DualNum.constant(0.0, 3)),
+            Rotation2dDual.Companion.exp(DualNum.Companion.constant(0.0, 3)),
         )
 
         val measured = mutableListOf<Pose2d>()

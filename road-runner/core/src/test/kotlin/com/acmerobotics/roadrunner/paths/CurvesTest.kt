@@ -1,5 +1,6 @@
-package com.acmerobotics.roadrunner
+package com.acmerobotics.roadrunner.paths
 
+import com.acmerobotics.roadrunner.builders.chartSpline
 import com.acmerobotics.roadrunner.geometry.Arclength
 import com.acmerobotics.roadrunner.geometry.DualNum
 import com.acmerobotics.roadrunner.geometry.Internal
@@ -11,8 +12,9 @@ import com.acmerobotics.roadrunner.geometry.range
 import com.acmerobotics.roadrunner.paths.ArclengthReparamCurve2d
 import com.acmerobotics.roadrunner.paths.PositionPath
 import com.acmerobotics.roadrunner.paths.QuinticSpline1d
-import com.acmerobotics.roadrunner.paths.QuinticSpline2d
+import com.acmerobotics.roadrunner.paths.QuinticSpline2dInternal
 import com.acmerobotics.roadrunner.paths.SplineHeadingPath
+import com.acmerobotics.roadrunner.saveChart
 import org.junit.jupiter.api.Test
 import org.knowm.xchart.QuickChart
 import org.knowm.xchart.XYChart
@@ -196,7 +198,7 @@ class CurvesTest {
     @Test
     fun testArcLengthReparam() {
         val spline =
-            QuinticSpline2d(
+            QuinticSpline2dInternal(
                 QuinticSpline1d(
                     DualNum(doubleArrayOf(0.0, 10.0, 30.0)),
                     DualNum(doubleArrayOf(20.0, 30.0, 0.0)),
@@ -319,7 +321,10 @@ class CurvesTest {
             15.0,
         )
 
-        saveChart("splineHeadingPathSpline", chartSpline(p.spline))
+        saveChart(
+            "splineHeadingPathSpline",
+            chartSpline(p.spline)
+        )
         saveChart("splineHeadingPath", chartSplineHeadingPath(p))
     }
 }

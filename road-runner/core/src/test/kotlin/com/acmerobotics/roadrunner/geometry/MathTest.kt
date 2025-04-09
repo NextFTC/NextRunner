@@ -1,8 +1,5 @@
-package com.acmerobotics.roadrunner
+package com.acmerobotics.roadrunner.geometry
 
-import com.acmerobotics.roadrunner.geometry.integralScan
-import com.acmerobotics.roadrunner.geometry.lerpLookup
-import com.acmerobotics.roadrunner.geometry.lerpLookupMap
 import org.junit.jupiter.api.Test
 import kotlin.math.sqrt
 import kotlin.test.assertEquals

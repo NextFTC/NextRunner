@@ -1,5 +1,6 @@
-package com.acmerobotics.roadrunner
+package com.acmerobotics.roadrunner.paths
 
+import com.acmerobotics.roadrunner.TEST_TRAJECTORY_BUILDER_PARAMS
 import com.acmerobotics.roadrunner.control.MecanumKinematics
 import com.acmerobotics.roadrunner.control.WheelVelConstraint
 import com.acmerobotics.roadrunner.geometry.Pose2d
@@ -16,6 +17,7 @@ import com.acmerobotics.roadrunner.paths.backwardProfile
 import com.acmerobotics.roadrunner.paths.constantProfile
 import com.acmerobotics.roadrunner.paths.forwardProfile
 import com.acmerobotics.roadrunner.paths.profile
+import com.acmerobotics.roadrunner.saveChart
 import com.acmerobotics.roadrunner.trajectories.TrajectoryBuilder
 import org.junit.jupiter.api.Test
 import org.knowm.xchart.QuickChart

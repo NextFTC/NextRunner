@@ -1,7 +1,8 @@
-package com.acmerobotics.roadrunner
+package com.acmerobotics.roadrunner.builders
 
 import com.acmerobotics.roadrunner.geometry.Rotation2d
 import com.acmerobotics.roadrunner.geometry.Vector2d
+import com.acmerobotics.roadrunner.saveChartPanel
 import com.acmerobotics.roadrunner.trajectories.PosePathSeqBuilder
 import com.acmerobotics.roadrunner.trajectories.PositionPathSeqBuilder
 import org.junit.jupiter.api.Test

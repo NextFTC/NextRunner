@@ -1,5 +1,7 @@
-package com.acmerobotics.roadrunner
+package com.acmerobotics.roadrunner.builders
 
+import com.acmerobotics.roadrunner.TEST_PROFILE_PARAMS
+import com.acmerobotics.roadrunner.TEST_TRAJECTORY_BUILDER_PARAMS
 import com.acmerobotics.roadrunner.control.MecanumKinematics
 import com.acmerobotics.roadrunner.control.WheelVelConstraint
 import com.acmerobotics.roadrunner.geometry.Pose2d
@@ -18,6 +20,9 @@ import com.acmerobotics.roadrunner.paths.QuinticSpline1d
 import com.acmerobotics.roadrunner.paths.SplineHeadingPath
 import com.acmerobotics.roadrunner.paths.TimeProfile
 import com.acmerobotics.roadrunner.paths.TranslationalVelConstraint
+import com.acmerobotics.roadrunner.paths.chartTimeProfile
+import com.acmerobotics.roadrunner.paths.numericalDerivative
+import com.acmerobotics.roadrunner.saveChart
 import com.acmerobotics.roadrunner.trajectories.PathBuilder
 import com.acmerobotics.roadrunner.trajectories.PosePathSeqBuilder
 import com.acmerobotics.roadrunner.trajectories.PositionPathSeqBuilder
@@ -241,7 +246,10 @@ fun chartSpline(q: QuinticSpline1d): XYChart {
                     .tangentUntilEnd()
                     .first()
 
-                saveChart("poseBuilder/tangent", chartPosePathHeading(posePath))
+                saveChart(
+                    "poseBuilder/tangent",
+                    chartPosePathHeading(posePath)
+                )
             }
 
             @Test
@@ -277,29 +285,32 @@ fun chartSpline(q: QuinticSpline1d): XYChart {
                     .splineUntilEnd(Rotation2d.exp(-PI / 3))
                     .first()
 
-                saveChart("poseBuilder/spline", chartPosePathHeading(posePath))
+                saveChart(
+                    "poseBuilder/spline",
+                    chartPosePathHeading(posePath)
+                )
                 saveChart(
                     "poseBuilder/spline2",
                     chartSpline(
                         (
-                            (
-                                (posePath as CompositePosePath).paths[0]
-                                    as HeadingPosePath
-                                ).headingPath
-                                as SplineHeadingPath
-                            ).spline
+                                (
+                                        (posePath as CompositePosePath).paths[0]
+                                                as HeadingPosePath
+                                        ).headingPath
+                                        as SplineHeadingPath
+                                ).spline
                     )
                 )
                 saveChart(
                     "poseBuilder/spline3",
                     chartSplineExpLog(
                         (
-                            (
-                                posePath.paths[0]
-                                    as HeadingPosePath
-                                ).headingPath
-                                as SplineHeadingPath
-                            ).spline
+                                (
+                                        posePath.paths[0]
+                                                as HeadingPosePath
+                                        ).headingPath
+                                        as SplineHeadingPath
+                                ).spline
                     )
                 )
             }
@@ -323,7 +334,10 @@ fun chartSpline(q: QuinticSpline1d): XYChart {
                     .splineUntilEnd(Rotation2d.exp(-PI / 3))
                     .first()
 
-                saveChart("poseBuilder/linearSpline", chartPosePathHeading(posePath))
+                saveChart(
+                    "poseBuilder/linearSpline",
+                    chartPosePathHeading(posePath)
+                )
             }
 
             @Test
@@ -345,7 +359,10 @@ fun chartSpline(q: QuinticSpline1d): XYChart {
                     .linearUntilEnd(Rotation2d.exp(PI / 2))
                     .first()
 
-                saveChart("poseBuilder/splineLinear", chartPosePathHeading(posePath))
+                saveChart(
+                    "poseBuilder/splineLinear",
+                    chartPosePathHeading(posePath)
+                )
             }
 
             @Test
@@ -367,7 +384,10 @@ fun chartSpline(q: QuinticSpline1d): XYChart {
                     .splineUntilEnd(Rotation2d.exp(PI / 2))
                     .first()
 
-                saveChart("poseBuilder/splineSpline", chartPosePathHeading(posePath))
+                saveChart(
+                    "poseBuilder/splineSpline",
+                    chartPosePathHeading(posePath)
+                )
             }
 
             @Test
@@ -413,7 +433,10 @@ fun chartSpline(q: QuinticSpline1d): XYChart {
                     .build()
                     .first()
 
-                saveChart("pathBuilder/forward", chartPosePathHeading(posePath))
+                saveChart(
+                    "pathBuilder/forward",
+                    chartPosePathHeading(posePath)
+                )
             }
 
             @Test
@@ -451,9 +474,18 @@ fun chartSpline(q: QuinticSpline1d): XYChart {
                     .build()
                     .first()
 
-                saveChart("trajBuilder/issue82", chartPosePath(traj.path))
-                saveChart("trajBuilder/issue82XY", chartPosePathXY(traj.path))
-                saveChart("trajBuilder/issue82Profile", chartTimeProfile(TimeProfile(traj.profile.baseProfile)))
+                saveChart(
+                    "trajBuilder/issue82",
+                    chartPosePath(traj.path)
+                )
+                saveChart(
+                    "trajBuilder/issue82XY",
+                    chartPosePathXY(traj.path)
+                )
+                saveChart(
+                    "trajBuilder/issue82Profile",
+                    chartTimeProfile(TimeProfile(traj.profile.baseProfile))
+                )
             }
 
             // https://github.com/acmerobotics/road-runner/issues/97
