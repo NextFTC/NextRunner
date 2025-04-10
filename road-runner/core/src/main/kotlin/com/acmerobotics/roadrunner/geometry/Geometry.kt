@@ -27,7 +27,12 @@ data class Vector2d(@JvmField val x: Double, @JvmField val y: Double) {
 
     // precondition: this is normalized
     fun angleCast() = Rotation2d(x, y)
+
+    fun asPair() = x to y
 }
+
+fun List<Vector2d>.xs() = map { it.asPair() }.unzip().first
+fun List<Vector2d>.ys() = map { it.asPair() }.unzip().second
 
 /**
  * Dual version of [Vector2d].
@@ -60,7 +65,12 @@ data class Vector2dDual<Param>(@JvmField val x: DualNum<Param>, @JvmField val y:
 
     // precondition: this is normalized
     fun angleCast() = Rotation2dDual(x, y)
+
+    fun asPair() = x to y
 }
+
+fun <Param> List<Vector2dDual<Param>>.xsDual() = map { it.asPair() }.unzip().first
+fun <Param> List<Vector2dDual<Param>>.ysDual() = map { it.asPair() }.unzip().second
 
 /**
  * @usesMathJax

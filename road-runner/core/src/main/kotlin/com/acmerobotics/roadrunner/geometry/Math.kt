@@ -186,3 +186,12 @@ fun lerpLookupMap(source: List<Double>, target: List<Double>, queries: List<Doub
 
     return result
 }
+
+fun Int.fact(): Int {
+    require(this >= 0)
+    return when (this) {
+        0 -> 1
+        1 -> 1
+        else -> this * (this-1).fact()
+    }
+}

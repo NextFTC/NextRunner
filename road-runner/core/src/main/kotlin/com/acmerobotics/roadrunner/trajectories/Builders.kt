@@ -23,7 +23,7 @@ import com.acmerobotics.roadrunner.paths.PosePath
 import com.acmerobotics.roadrunner.paths.PositionPath
 import com.acmerobotics.roadrunner.paths.PositionPathView
 import com.acmerobotics.roadrunner.paths.QuinticSpline1d
-import com.acmerobotics.roadrunner.paths.QuinticSpline2d
+import com.acmerobotics.roadrunner.paths.QuinticSpline2dInternal
 import com.acmerobotics.roadrunner.paths.SplineHeadingPath
 import com.acmerobotics.roadrunner.paths.TangentPath
 import com.acmerobotics.roadrunner.paths.profile
@@ -195,7 +195,7 @@ class PositionPathSeqBuilder private constructor(
         val endDeriv = tangent.vec() * dist
 
         val spline = ArclengthReparamCurve2d(
-            QuinticSpline2d(
+            QuinticSpline2dInternal(
                 QuinticSpline1d(
                     DualNum(doubleArrayOf(nextBeginPos.x, beginDeriv.x, 0.0)),
                     DualNum(doubleArrayOf(pos.x, endDeriv.x, 0.0))
