@@ -3,8 +3,11 @@
 package com.acmerobotics.roadrunner.paths
 
 import com.acmerobotics.roadrunner.geometry.Arclength
+import com.acmerobotics.roadrunner.geometry.Pose2d
 import com.acmerobotics.roadrunner.geometry.Pose2dDual
+import com.acmerobotics.roadrunner.geometry.Rotation2d
 import com.acmerobotics.roadrunner.geometry.Vector2d
+import com.acmerobotics.roadrunner.geometry.Vector2dDual
 import com.acmerobotics.roadrunner.geometry.clamp
 
 /**
@@ -110,6 +113,28 @@ class OffsetPosePath(
     }
 
     override fun length() = offsets[1] - offsets[0]
+}
+
+class TurnPath(
+    @JvmField
+    val position: Vector2d,
+    @JvmField
+    val headingPath: HeadingPath
+) : PosePath {
+    constructor(start: Pose2d, endAngle: Rotation2d) : this(
+        start.position,
+        LinearHeadingPath(
+            start.heading,
+            endAngle.log(),
+            start.heading - endAngle
+        )
+    )
+
+    override fun get(s: Double, n: Int): Pose2dDual<Arclength> =
+        Pose2dDual(Vector2dDual.constant(position, n), headingPath[s, n])
+
+    override fun length(): Double = headingPath.length()
+
 }
 
 /**

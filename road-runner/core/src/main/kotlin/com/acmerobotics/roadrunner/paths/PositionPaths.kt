@@ -46,20 +46,6 @@ interface PositionPath<Param> {
 fun project(path: PositionPath<Arclength>, query: Vector2d, init: Double): Double = path.project(query, init)
 
 /**
- * Path comprised of two [QuinticSpline1d]s.
- */
-data class QuinticSpline2d(
-    @JvmField
-    val x: QuinticSpline1d,
-    @JvmField
-    val y: QuinticSpline1d,
-) : PositionPath<Internal> {
-    override fun get(param: Double, n: Int) = Vector2dDual(x[param, n], y[param, n])
-
-    override fun length() = 1.0
-}
-
-/**
  * Line beginning at position [begin], pointed in direction [dir], and having length [length].
  *
  * @param[dir] unit vector

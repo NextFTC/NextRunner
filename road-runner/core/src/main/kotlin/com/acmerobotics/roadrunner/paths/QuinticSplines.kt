@@ -2,6 +2,7 @@ package com.acmerobotics.roadrunner.paths
 
 import com.acmerobotics.roadrunner.geometry.DualNum
 import com.acmerobotics.roadrunner.geometry.Internal
+import com.acmerobotics.roadrunner.geometry.Vector2dDual
 
 /**
  * @usesMathJax
@@ -70,4 +71,23 @@ data class QuinticSpline1d(
             }
         }
     )
+}
+
+/**
+ * Path comprised of two [QuinticSpline1d]s.
+ */
+data class QuinticSpline2dInternal(
+    @JvmField
+    val x: QuinticSpline1d,
+    @JvmField
+    val y: QuinticSpline1d,
+) : PositionPath<Internal> {
+    constructor(begin: Vector2dDual<Internal>, end: Vector2dDual<Internal>) : this(
+        QuinticSpline1d(begin.x, end.x),
+        QuinticSpline1d(begin.y, end.y)
+    )
+
+    override fun get(param: Double, n: Int) = Vector2dDual(x[param, n], y[param, n])
+
+    override fun length() = 1.0
 }
