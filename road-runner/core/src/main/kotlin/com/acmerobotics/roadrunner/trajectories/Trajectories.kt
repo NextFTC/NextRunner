@@ -1,13 +1,14 @@
 package com.acmerobotics.roadrunner.trajectories
 
-import com.acmerobotics.roadrunner.paths.CancelableProfile
-import com.acmerobotics.roadrunner.paths.DisplacementProfile
-import com.acmerobotics.roadrunner.paths.TimeProfile
+import com.acmerobotics.roadrunner.profiles.CancelableProfile
+import com.acmerobotics.roadrunner.profiles.DisplacementProfile
+import com.acmerobotics.roadrunner.profiles.TimeProfile
 import com.acmerobotics.roadrunner.geometry.Pose2dDual
 import com.acmerobotics.roadrunner.geometry.Time
 import com.acmerobotics.roadrunner.geometry.Vector2d
 import com.acmerobotics.roadrunner.paths.PosePath
-import com.acmerobotics.roadrunner.paths.Profile
+import com.acmerobotics.roadrunner.profiles.Profile
+import com.acmerobotics.roadrunner.profiles.wrtDisp
 
 interface Trajectory {
     val path: PosePath
@@ -16,6 +17,20 @@ interface Trajectory {
     fun length(): Double
 
     operator fun get(t: Double): Pose2dDual<Time>
+}
+
+val Trajectory.wrtDisp get() = when (this) {
+    is DisplacementTrajectory -> this
+    is TimeTrajectory -> DisplacementTrajectory(this.path, this.profile.wrtDisp!!)
+    is CancelableTrajectory -> DisplacementTrajectory(this.path, this.profile.wrtDisp!!)
+    else -> null
+}
+
+val Trajectory.wrtTime get() = when(this) {
+    is TimeTrajectory -> this
+    is DisplacementTrajectory -> TimeTrajectory(this)
+    is CancelableTrajectory -> TimeTrajectory(this)
+    else -> null
 }
 
 class CancelableTrajectory(
