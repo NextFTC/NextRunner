@@ -11,6 +11,7 @@ import com.acmerobotics.roadrunner.profiles.TranslationalVelConstraint
 import com.acmerobotics.roadrunner.trajectories.TimeTrajectory
 import com.acmerobotics.roadrunner.trajectories.TimeTurn
 import com.acmerobotics.roadrunner.trajectories.TurnConstraints
+import com.acmerobotics.roadrunner.trajectories.wrtTime
 import kotlin.math.PI
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -58,7 +59,7 @@ class ActionRegressionTest {
         val base =
             TrajectoryActionBuilder(
                 { TurnAction(it) },
-                { TrajectoryAction(it) },
+                { TrajectoryAction(it.wrtTime!!) },
                 TEST_TRAJECTORY_BUILDER_PARAMS,
                 Pose2d(0.0, 0.0, 0.0),
                 0.0,
