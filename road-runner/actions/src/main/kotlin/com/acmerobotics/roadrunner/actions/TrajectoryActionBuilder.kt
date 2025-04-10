@@ -14,6 +14,7 @@ import com.acmerobotics.roadrunner.trajectories.IdentityPoseMap
 import com.acmerobotics.roadrunner.trajectories.PoseMap
 import com.acmerobotics.roadrunner.trajectories.TimeTrajectory
 import com.acmerobotics.roadrunner.trajectories.TimeTurn
+import com.acmerobotics.roadrunner.trajectories.Trajectory
 import com.acmerobotics.roadrunner.trajectories.TrajectoryBuilder
 import com.acmerobotics.roadrunner.trajectories.TrajectoryBuilderParams
 import com.acmerobotics.roadrunner.trajectories.TurnConstraints
@@ -47,7 +48,7 @@ fun interface TurnActionFactory {
 }
 
 fun interface TrajectoryActionFactory {
-    fun make(t: TimeTrajectory): Action
+    fun make(t: Trajectory): Action
 }
 
 /**

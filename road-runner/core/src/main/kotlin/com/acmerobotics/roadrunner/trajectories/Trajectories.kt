@@ -14,7 +14,7 @@ interface Trajectory {
     operator fun get(t: Double): Pose2dDual<Time>
 }
 
-class CancelableTrajcetory(
+class CancelableTrajectory(
     @JvmField
     val path: MappedPosePath,
     @JvmField
@@ -45,7 +45,7 @@ class DisplacementTrajectory(
     @JvmField
     val profile: DisplacementProfile
 ) : Trajectory {
-    constructor(t: CancelableTrajcetory) : this(t.path, t.profile.baseProfile)
+    constructor(t: CancelableTrajectory) : this(t.path, t.profile.baseProfile)
 
     override fun length() = path.length()
 
@@ -63,7 +63,7 @@ class TimeTrajectory(
     @JvmField
     val duration = profile.duration
 
-    constructor(t: CancelableTrajcetory) : this(t.path, TimeProfile(t.profile.baseProfile))
+    constructor(t: CancelableTrajectory) : this(t.path, TimeProfile(t.profile.baseProfile))
 
     constructor(t: DisplacementTrajectory) : this(t.path, TimeProfile(t.profile))
 
