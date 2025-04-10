@@ -14,7 +14,7 @@ interface Drive<WI: WheelIncrements<Time>, WV: WheelVelocities<Time>> {
     val controller: RobotPosVelController
     val kinematics: RobotKinematics<WI, WV>
 
-    val profileParams: ProfileParams
+    val followerParams: FollowerParams
     val defaultVelConstraint: VelConstraint
     val defaultAccelConstraint: AccelConstraint
     val defaultTurnConstraints: TurnConstraints
