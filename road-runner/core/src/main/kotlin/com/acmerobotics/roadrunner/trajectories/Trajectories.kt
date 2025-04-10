@@ -7,18 +7,20 @@ import com.acmerobotics.roadrunner.geometry.Pose2dDual
 import com.acmerobotics.roadrunner.geometry.Time
 import com.acmerobotics.roadrunner.geometry.Vector2d
 import com.acmerobotics.roadrunner.paths.PosePath
+import com.acmerobotics.roadrunner.paths.Profile
 
 interface Trajectory {
+    val path: PosePath
+    val profile: Profile
+
     fun length(): Double
 
     operator fun get(t: Double): Pose2dDual<Time>
 }
 
 class CancelableTrajectory(
-    @JvmField
-    val path: MappedPosePath,
-    @JvmField
-    val profile: CancelableProfile,
+    override val path: MappedPosePath,
+    override val profile: CancelableProfile,
     @JvmField
     val offsets: List<Double>
 ) : Trajectory {
@@ -40,10 +42,8 @@ class CancelableTrajectory(
 }
 
 class DisplacementTrajectory(
-    @JvmField
-    val path: PosePath,
-    @JvmField
-    val profile: DisplacementProfile
+    override val path: PosePath,
+    override val profile: DisplacementProfile
 ) : Trajectory {
     constructor(t: CancelableTrajectory) : this(t.path, t.profile.baseProfile)
 
@@ -55,13 +55,10 @@ class DisplacementTrajectory(
 }
 
 class TimeTrajectory(
-    @JvmField
-    val path: PosePath,
-    @JvmField
-    val profile: TimeProfile
+    override val path: PosePath,
+    override val profile: TimeProfile
 ) : Trajectory {
-    @JvmField
-    val duration = profile.duration
+    @JvmField val duration = profile.duration
 
     constructor(t: CancelableTrajectory) : this(t.path, TimeProfile(t.profile.baseProfile))
 
