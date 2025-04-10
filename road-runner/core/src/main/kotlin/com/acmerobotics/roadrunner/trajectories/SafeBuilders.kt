@@ -1,7 +1,7 @@
 package com.acmerobotics.roadrunner.trajectories
 
-import com.acmerobotics.roadrunner.paths.AccelConstraint
-import com.acmerobotics.roadrunner.paths.VelConstraint
+import com.acmerobotics.roadrunner.profiles.AccelConstraint
+import com.acmerobotics.roadrunner.profiles.VelConstraint
 import com.acmerobotics.roadrunner.geometry.Arclength
 import com.acmerobotics.roadrunner.geometry.Pose2d
 import com.acmerobotics.roadrunner.geometry.Rotation2d

@@ -1,8 +1,8 @@
 package com.acmerobotics.roadrunner.control
 
-import com.acmerobotics.roadrunner.paths.AccelConstraint
-import com.acmerobotics.roadrunner.paths.ProfileParams
-import com.acmerobotics.roadrunner.paths.VelConstraint
+import com.acmerobotics.roadrunner.profiles.AccelConstraint
+import com.acmerobotics.roadrunner.profiles.ProfileParams
+import com.acmerobotics.roadrunner.profiles.VelConstraint
 
 data class FollowerParams(
     @JvmField

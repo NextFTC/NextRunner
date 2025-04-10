@@ -6,10 +6,10 @@ import com.acmerobotics.roadrunner.geometry.PoseVelocity2dDual
 import com.acmerobotics.roadrunner.geometry.Time
 import com.acmerobotics.roadrunner.geometry.Twist2d
 import com.acmerobotics.roadrunner.geometry.Vector2d
-import com.acmerobotics.roadrunner.paths.ProfileAccelConstraint
+import com.acmerobotics.roadrunner.profiles.ProfileAccelConstraint
 import com.acmerobotics.roadrunner.paths.TangentPath
-import com.acmerobotics.roadrunner.paths.TimeProfile
-import com.acmerobotics.roadrunner.paths.profile
+import com.acmerobotics.roadrunner.profiles.TimeProfile
+import com.acmerobotics.roadrunner.profiles.profile
 import com.acmerobotics.roadrunner.saveChart
 import com.acmerobotics.roadrunner.trajectories.PositionPathSeqBuilder
 import org.junit.jupiter.api.Test

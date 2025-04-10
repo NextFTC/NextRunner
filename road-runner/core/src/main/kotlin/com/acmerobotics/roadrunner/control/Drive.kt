@@ -4,9 +4,8 @@ package com.acmerobotics.roadrunner.control
 import com.acmerobotics.roadrunner.geometry.PoseVelocity2d
 import com.acmerobotics.roadrunner.geometry.PoseVelocity2dDual
 import com.acmerobotics.roadrunner.geometry.Time
-import com.acmerobotics.roadrunner.paths.AccelConstraint
-import com.acmerobotics.roadrunner.paths.ProfileParams
-import com.acmerobotics.roadrunner.paths.VelConstraint
+import com.acmerobotics.roadrunner.profiles.AccelConstraint
+import com.acmerobotics.roadrunner.profiles.VelConstraint
 import com.acmerobotics.roadrunner.trajectories.TurnConstraints
 
 interface Drive<WI: WheelIncrements<Time>, WV: WheelVelocities<Time>> {

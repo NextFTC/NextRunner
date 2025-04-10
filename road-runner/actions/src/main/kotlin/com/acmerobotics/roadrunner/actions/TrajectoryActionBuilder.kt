@@ -8,8 +8,8 @@ import com.acmerobotics.roadrunner.geometry.Rotation2d
 import com.acmerobotics.roadrunner.geometry.Rotation2dDual
 import com.acmerobotics.roadrunner.geometry.Vector2d
 import com.acmerobotics.roadrunner.geometry.Vector2dDual
-import com.acmerobotics.roadrunner.paths.AccelConstraint
-import com.acmerobotics.roadrunner.paths.VelConstraint
+import com.acmerobotics.roadrunner.profiles.AccelConstraint
+import com.acmerobotics.roadrunner.profiles.VelConstraint
 import com.acmerobotics.roadrunner.trajectories.IdentityPoseMap
 import com.acmerobotics.roadrunner.trajectories.PoseMap
 import com.acmerobotics.roadrunner.trajectories.TimeTrajectory
@@ -18,7 +18,6 @@ import com.acmerobotics.roadrunner.trajectories.Trajectory
 import com.acmerobotics.roadrunner.trajectories.TrajectoryBuilder
 import com.acmerobotics.roadrunner.trajectories.TrajectoryBuilderParams
 import com.acmerobotics.roadrunner.trajectories.TurnConstraints
-import kotlin.compareTo
 
 private fun seqCons(hd: Action, tl: Action): Action =
     if (tl is SequentialAction) {

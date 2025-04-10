@@ -5,8 +5,8 @@ import com.acmerobotics.roadrunner.geometry.Pose2dDual
 import com.acmerobotics.roadrunner.geometry.Rotation2dDual
 import com.acmerobotics.roadrunner.geometry.Time
 import com.acmerobotics.roadrunner.geometry.Vector2dDual
-import com.acmerobotics.roadrunner.paths.TimeProfile
-import com.acmerobotics.roadrunner.paths.constantProfile
+import com.acmerobotics.roadrunner.profiles.TimeProfile
+import com.acmerobotics.roadrunner.profiles.constantProfile
 import kotlin.math.abs
 
 data class TurnConstraints(

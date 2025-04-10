@@ -1,6 +1,6 @@
 package com.acmerobotics.roadrunner
 
-import com.acmerobotics.roadrunner.paths.ProfileParams
+import com.acmerobotics.roadrunner.profiles.ProfileParams
 import com.acmerobotics.roadrunner.trajectories.TrajectoryBuilderParams
 
 val TEST_PROFILE_PARAMS = ProfileParams(

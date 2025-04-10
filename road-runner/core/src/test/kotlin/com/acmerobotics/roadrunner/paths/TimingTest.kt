@@ -1,6 +1,14 @@
 package com.acmerobotics.roadrunner.paths
 
 import com.acmerobotics.roadrunner.geometry.Vector2d
+import com.acmerobotics.roadrunner.profiles.AccelConstraint
+import com.acmerobotics.roadrunner.profiles.AngularVelConstraint
+import com.acmerobotics.roadrunner.profiles.MinVelConstraint
+import com.acmerobotics.roadrunner.profiles.ProfileAccelConstraint
+import com.acmerobotics.roadrunner.profiles.ProfileParams
+import com.acmerobotics.roadrunner.profiles.TranslationalVelConstraint
+import com.acmerobotics.roadrunner.profiles.VelConstraint
+import com.acmerobotics.roadrunner.profiles.profile
 import com.acmerobotics.roadrunner.trajectories.PositionPathSeqBuilder
 import com.acmerobotics.roadrunner.trajectories.TrajectoryBuilderParams
 import kotlin.random.Random

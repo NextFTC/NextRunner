@@ -8,6 +8,7 @@ import com.acmerobotics.roadrunner.geometry.Rotation2dDual
 import com.acmerobotics.roadrunner.geometry.Time
 import com.acmerobotics.roadrunner.geometry.Twist2d
 import com.acmerobotics.roadrunner.geometry.Vector2dDual
+import com.acmerobotics.roadrunner.profiles.DisplacementProfile
 import com.acmerobotics.roadrunner.saveChart
 import org.junit.jupiter.api.Test
 import org.knowm.xchart.XYChartBuilder

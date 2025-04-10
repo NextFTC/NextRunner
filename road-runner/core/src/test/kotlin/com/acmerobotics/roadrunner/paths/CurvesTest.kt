@@ -269,6 +269,37 @@ class CurvesTest {
     }
 
     @Test
+    fun testBezierGet() {
+        val r = Random.Default
+        repeat(100) {i ->
+            val spline = QuinticSpline1d(
+                DualNum(doubleArrayOf(r.nextDouble(), r.nextDouble(), r.nextDouble())),
+                DualNum(doubleArrayOf(r.nextDouble(), r.nextDouble(), r.nextDouble())),
+            )
+
+            val curve = BezierCurve1d.fromRRSpline(spline)
+
+            val t = DualNum.variable<Internal>(r.nextDouble(1.0), 4)
+            curve[t.value(), 4].values()
+                .zip(
+                    (
+                            t * (
+                                    t * (
+                                            t * (
+                                                    t * (t * spline.a + spline.b) +
+                                                            spline.c
+                                                    ) + spline.d
+                                            ) + spline.e
+                                    ) + spline.f
+                            ).values()
+                )
+                .forEach {
+                    assertEquals(it.first, it.second, 1e-6)
+                }
+        }
+    }
+
+    @Test
     fun testSplineHeadingInterpolation() {
         val r = Random.Default
         repeat(100) {

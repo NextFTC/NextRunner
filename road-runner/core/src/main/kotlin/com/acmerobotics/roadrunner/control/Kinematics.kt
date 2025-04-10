@@ -7,7 +7,7 @@ import com.acmerobotics.roadrunner.geometry.PoseVelocity2dDual
 import com.acmerobotics.roadrunner.geometry.Twist2dDual
 import com.acmerobotics.roadrunner.geometry.Vector2dDual
 import com.acmerobotics.roadrunner.paths.PosePath
-import com.acmerobotics.roadrunner.paths.VelConstraint
+import com.acmerobotics.roadrunner.profiles.VelConstraint
 import kotlin.math.abs
 
 interface WheelIncrements<Param>

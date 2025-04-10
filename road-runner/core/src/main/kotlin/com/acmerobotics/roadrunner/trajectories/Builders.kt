@@ -1,10 +1,6 @@
 package com.acmerobotics.roadrunner.trajectories
 
-import com.acmerobotics.roadrunner.paths.AccelConstraint
-import com.acmerobotics.roadrunner.paths.CompositeAccelConstraint
-import com.acmerobotics.roadrunner.paths.CompositeVelConstraint
-import com.acmerobotics.roadrunner.paths.ProfileParams
-import com.acmerobotics.roadrunner.paths.VelConstraint
+import com.acmerobotics.roadrunner.profiles.ProfileParams
 import com.acmerobotics.roadrunner.geometry.Arclength
 import com.acmerobotics.roadrunner.geometry.DualNum
 import com.acmerobotics.roadrunner.geometry.Pose2d
@@ -26,7 +22,11 @@ import com.acmerobotics.roadrunner.paths.QuinticSpline1d
 import com.acmerobotics.roadrunner.paths.QuinticSpline2dInternal
 import com.acmerobotics.roadrunner.paths.SplineHeadingPath
 import com.acmerobotics.roadrunner.paths.TangentPath
-import com.acmerobotics.roadrunner.paths.profile
+import com.acmerobotics.roadrunner.profiles.AccelConstraint
+import com.acmerobotics.roadrunner.profiles.CompositeAccelConstraint
+import com.acmerobotics.roadrunner.profiles.CompositeVelConstraint
+import com.acmerobotics.roadrunner.profiles.VelConstraint
+import com.acmerobotics.roadrunner.profiles.profile
 import kotlin.math.PI
 import kotlin.math.abs
 

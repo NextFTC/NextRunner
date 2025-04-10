@@ -7,10 +7,10 @@ import com.acmerobotics.roadrunner.geometry.Rotation2d
 import com.acmerobotics.roadrunner.geometry.Time
 import com.acmerobotics.roadrunner.geometry.Vector2d
 import com.acmerobotics.roadrunner.geometry.range
-import com.acmerobotics.roadrunner.paths.ProfileAccelConstraint
+import com.acmerobotics.roadrunner.profiles.ProfileAccelConstraint
 import com.acmerobotics.roadrunner.paths.TangentPath
-import com.acmerobotics.roadrunner.paths.TimeProfile
-import com.acmerobotics.roadrunner.paths.profile
+import com.acmerobotics.roadrunner.profiles.TimeProfile
+import com.acmerobotics.roadrunner.profiles.profile
 import com.acmerobotics.roadrunner.paths.saveProfiles
 import com.acmerobotics.roadrunner.trajectories.PositionPathSeqBuilder
 import kotlin.math.PI
