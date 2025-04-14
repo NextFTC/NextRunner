@@ -53,6 +53,8 @@ data class QuinticSpline1d(
         begin[0],
     )
 
+    val coefficients = listOf(a, b, c, d, e, f)
+
     /**
      * @usesMathJax
      *

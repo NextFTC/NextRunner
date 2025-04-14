@@ -1,8 +1,7 @@
 val libVersion: String by rootProject.extra
-val rrUVersion = "1.5.0-RC-1"
 
 plugins {
-    id("org.jetbrains.kotlin.jvm") version "1.9.0"
+    kotlin("jvm")
 
     `java-library`
     `java-test-fixtures`
@@ -35,27 +34,4 @@ java {
 
 tasks.named<Test>("test") {
     useJUnitPlatform()
-}
-
-publishing {
-    publications {
-        create<MavenPublication>("maven") {
-            groupId = "com.acmerobotics.roadrunner"
-            artifactId = "core_unofficial"
-            version = rrUVersion
-
-            from(components["java"])
-        }
-    }
-
-    repositories {
-        maven {
-            name = "zharelReleases"
-            url = File(project.property("zharelReleasesLocation")!!.toString()).toURI()
-        }
-        maven {
-            name = "zharelSnapshots"
-            url = File(project.property("zharelSnapshotsLocation")!!.toString()).toURI()
-        }
-    }
 }

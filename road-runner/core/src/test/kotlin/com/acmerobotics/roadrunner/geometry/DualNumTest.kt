@@ -93,6 +93,16 @@ fun assertDualEquals(expected: RefDualNum<TestParam>, actual: DualNum<TestParam>
         }
 }
 
+fun <Param> assertDualEquals(expected: DualNum<Param>, actual: DualNum<Param>, absoluteTolerance: Double = 1e-6) {
+    assertEquals(expected.size(), actual.size())
+
+    expected.values()
+        .zip(actual.values())
+        .forEach { (expected, actual) ->
+            assertEquals(expected, actual, absoluteTolerance)
+        }
+}
+
 fun testRandomMonadic(
     expected: (RefDualNum<TestParam>) -> RefDualNum<TestParam>,
     actual: (DualNum<TestParam>) -> DualNum<TestParam>,

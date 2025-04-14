@@ -7,6 +7,7 @@ import com.acmerobotics.roadrunner.geometry.Internal
 import com.acmerobotics.roadrunner.geometry.Rotation2dDual
 import com.acmerobotics.roadrunner.geometry.Vector2d
 import com.acmerobotics.roadrunner.geometry.Vector2dDual
+import com.acmerobotics.roadrunner.geometry.assertDualEquals
 import com.acmerobotics.roadrunner.geometry.lerp
 import com.acmerobotics.roadrunner.geometry.range
 import com.acmerobotics.roadrunner.paths.ArclengthReparamCurve2d
@@ -23,6 +24,7 @@ import kotlin.math.PI
 import kotlin.math.abs
 import kotlin.math.asin
 import kotlin.math.min
+import kotlin.math.pow
 import kotlin.math.sqrt
 import kotlin.random.Random
 import kotlin.test.assertEquals
@@ -269,7 +271,14 @@ class CurvesTest {
     }
 
     @Test
-    fun testBezierGet() {
+    fun testPow() {
+        repeat(100) {
+            assertEquals(1.0, Random.Default.nextDouble(0.0, 1.0).pow(0))
+        }
+    }
+
+    @Test
+    fun testBezier() {
         val r = Random.Default
         repeat(100) {i ->
             val spline = QuinticSpline1d(
@@ -279,23 +288,10 @@ class CurvesTest {
 
             val curve = BezierCurve1d.fromRRSpline(spline)
 
-            val t = DualNum.variable<Internal>(r.nextDouble(1.0), 4)
-            curve[t.value(), 4].values()
-                .zip(
-                    (
-                            t * (
-                                    t * (
-                                            t * (
-                                                    t * (t * spline.a + spline.b) +
-                                                            spline.c
-                                                    ) + spline.d
-                                            ) + spline.e
-                                    ) + spline.f
-                            ).values()
-                )
-                .forEach {
-                    assertEquals(it.first, it.second, 1e-6)
-                }
+
+            val t = r.nextDouble()
+
+            assertDualEquals(spline[t, 1], curve[t, 1])
         }
     }
 

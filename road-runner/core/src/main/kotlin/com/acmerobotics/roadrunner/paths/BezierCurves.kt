@@ -49,14 +49,17 @@ data class BezierCurve1d(
 
     companion object {
         private infix fun Int.bi(other: Int): Int {
-            require(this >= 0 && other >= 0) { "Binomial coefficients are only defined for non-negative integers" }
-            require(this >= other) { "Binomial coefficient is only defined for n >= k" }
+            if (other < 0 || other > this) return 0
+            if (other == 0 || other == this) return 1
+            if (other > this / 2) return this bi (this - other)
 
-            return (this.fact()) / (other.fact() * (this-other).fact())
+            return (1..other).reduce { acc, i ->
+                acc * (this - i + 1)
+            }
         }
 
         fun fromRRSpline(spline: QuinticSpline1d): BezierCurve1d =
-            BezierCurve1d(listOf(spline.a, spline.b, spline.c, spline.d, spline.e, spline.f))
+            BezierCurve1d(spline.coefficients)
     }
 }
 

@@ -1,9 +1,10 @@
 import java.net.URI
 
 val libVersion: String by rootProject.extra
+val dashVersion: String by rootProject.extra
 
 plugins {
-    id("org.jetbrains.kotlin.jvm") version "1.9.0"
+    kotlin("jvm")
 
     `java-library`
 
@@ -25,7 +26,7 @@ dependencies {
 
     api(project(":core"))
 
-    api("com.acmerobotics.dashboard:core:0.4.7")
+    api("com.acmerobotics.dashboard:core:$dashVersion")
 
     testImplementation("org.jetbrains.kotlin:kotlin-test")
 
@@ -44,16 +45,4 @@ java {
 
 tasks.named<Test>("test") {
     useJUnitPlatform()
-}
-
-publishing {
-    publications {
-        create<MavenPublication>("maven") {
-            groupId = "com.acmerobotics.roadrunner"
-            artifactId = "actions"
-            version = libVersion
-
-            from(components["java"])
-        }
-    }
 }
