@@ -35,3 +35,26 @@ java {
 tasks.named<Test>("test") {
     useJUnitPlatform()
 }
+
+publishing {
+    publications {
+        create<MavenPublication>("maven") {
+            groupId = "com.acmerobotics.silkroad"
+            artifactId = "core"
+            version = libVersion
+
+            from(components["java"])
+        }
+    }
+
+    repositories {
+        maven {
+            name = "zharelReleases"
+            url = File(project.property("zharelReleasesLocation")!!.toString()).toURI()
+        }
+        maven {
+            name = "zharelSnapshots"
+            url = File(project.property("zharelSnapshotsLocation")!!.toString()).toURI()
+        }
+    }
+}

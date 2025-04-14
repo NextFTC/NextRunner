@@ -95,3 +95,27 @@ dependencies {
     testImplementation(testFixtures(project(":actions")))
 }
 
+publishing {
+    publications {
+        create<MavenPublication>("maven") {
+            groupId = "com.acmerobotics.silkroad"
+            artifactId = "ftc"
+            version = libVersion
+
+            afterEvaluate {
+                from(components["release"])
+            }
+        }
+    }
+
+    repositories {
+        maven {
+            name = "zharelReleases"
+            url = File(project.property("zharelReleasesLocation")!!.toString()).toURI()
+        }
+        maven {
+            name = "zharelSnapshots"
+            url = File(project.property("zharelSnapshotsLocation")!!.toString()).toURI()
+        }
+    }
+}
