@@ -1,6 +1,11 @@
-@file:JvmName("Drive")
-package com.acmerobotics.roadrunner.control
+package com.acmerobotics.roadrunner.ftc
 
+import com.acmerobotics.roadrunner.actions.TrajectoryActionBuilder
+import com.acmerobotics.roadrunner.control.RobotKinematics
+import com.acmerobotics.roadrunner.control.RobotPosVelController
+import com.acmerobotics.roadrunner.control.WheelIncrements
+import com.acmerobotics.roadrunner.control.WheelVelocities
+import com.acmerobotics.roadrunner.geometry.Pose2d
 import com.acmerobotics.roadrunner.geometry.PoseVelocity2d
 import com.acmerobotics.roadrunner.geometry.PoseVelocity2dDual
 import com.acmerobotics.roadrunner.geometry.Time
@@ -18,6 +23,9 @@ interface Drive<WI: WheelIncrements<Time>, WV: WheelVelocities<Time>> {
     val defaultAccelConstraint: AccelConstraint
     val defaultTurnConstraints: TurnConstraints
 
+    fun actionBuilder(startPose: Pose2d): TrajectoryActionBuilder
+    fun actionBuilder() = actionBuilder(localizer.pose)
+
     fun setDrivePowers(powers: PoseVelocity2dDual<Time>)
     fun setDrivePowersWithFF(powers: PoseVelocity2dDual<Time>)
 
@@ -31,4 +39,9 @@ interface Drive<WI: WheelIncrements<Time>, WV: WheelVelocities<Time>> {
     }
 }
 
+interface Localizer {
+    var pose: Pose2d
+    val poseHistory: MutableList<Pose2d>
 
+    fun update(): PoseVelocity2d
+}
