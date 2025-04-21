@@ -84,12 +84,13 @@ dependencies {
     api("com.acmerobotics.dashboard:core:$dashVersion")
     api("com.acmerobotics.dashboard:dashboard:$dashVersion")
 
-    testImplementation(kotlin("test"))
-
     implementation("org.firstinspires.ftc:RobotCore:$sdkVersion")
     implementation("org.firstinspires.ftc:Hardware:$sdkVersion")
 
     implementation("com.fasterxml.jackson.core:jackson-databind:2.12.7")
+
+    testImplementation(kotlin("test"))
+    testImplementation("org.junit.jupiter:junit-jupiter-api:5.10.1")
 
     testImplementation(testFixtures(project(":core")))
     testImplementation(testFixtures(project(":actions")))
