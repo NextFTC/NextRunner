@@ -84,7 +84,7 @@ dependencies {
     api("com.acmerobotics.dashboard:core:$dashVersion")
     api("com.acmerobotics.dashboard:dashboard:$dashVersion")
 
-    testImplementation("org.jetbrains.kotlin:kotlin-test")
+    testImplementation(kotlin("test"))
 
     implementation("org.firstinspires.ftc:RobotCore:$sdkVersion")
     implementation("org.firstinspires.ftc:Hardware:$sdkVersion")
@@ -98,7 +98,7 @@ dependencies {
 publishing {
     publications {
         create<MavenPublication>("maven") {
-            groupId = "com.acmerobotics.silkroad"
+            groupId = "dev.nextftc.nextrunner"
             artifactId = "ftc"
             version = libVersion
 

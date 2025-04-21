@@ -50,7 +50,7 @@ tasks.named<Test>("test") {
 publishing {
     publications {
         create<MavenPublication>("maven") {
-            groupId = "com.acmerobotics.silkroad"
+            groupId = "dev.nextftc.nextrunner"
             artifactId = "actions"
             version = libVersion
 
