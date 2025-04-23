@@ -1,3 +1,5 @@
+import com.moowork.gradle.node.yarn.YarnTask
+
 val libVersion: String by rootProject.extra
 val dashVersion: String by rootProject.extra
 val sdkVersion: String = "10.0.0"
@@ -6,7 +8,9 @@ val webDir: File = file("${project.projectDir.parent}/web")
 
 plugins {
     id("com.android.library")
+
     kotlin("android")
+    kotlin("plugin.serialization")
 
     `maven-publish`
 
@@ -38,15 +42,17 @@ node {
     nodeModulesDir = webDir
 }
 
-val yarnBuild by tasks.registering(Exec::class) {
-    environment("VITE_APP_VERSION" to libVersion)
-}
+val yarnInstall = tasks.named("yarn_install")
 
-val yarnInstall by tasks.named("yarn_install") // Assuming yarn_install task exists
+tasks.named<YarnTask>("yarn_build") {
+    setEnvironment(
+        mapOf("VITE_APP_VERSION" to libVersion)
+    )
 
-yarnBuild.configure {
     dependsOn(yarnInstall)
 }
+
+val yarnBuild = tasks.named("yarn_build")
 
 val cleanWebAssets by tasks.registering(Delete::class) {
     delete(android.sourceSets["main"]?.assets?.srcDirs?.firstOrNull()?.let { file("$it/web") } ?: project.buildDir.resolve("web_assets_deletion_fallback"))
@@ -84,16 +90,17 @@ dependencies {
     api("com.acmerobotics.dashboard:core:$dashVersion")
     api("com.acmerobotics.dashboard:dashboard:$dashVersion")
 
+    implementation("org.firstinspires.ftc:FtcCommon:$sdkVersion")
     implementation("org.firstinspires.ftc:RobotCore:$sdkVersion")
     implementation("org.firstinspires.ftc:Hardware:$sdkVersion")
 
     implementation("com.fasterxml.jackson.core:jackson-databind:2.12.7")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.8.0")
 
     testImplementation(kotlin("test"))
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.10.1")
 
     testImplementation(testFixtures(project(":core")))
-    testImplementation(testFixtures(project(":actions")))
 }
 
 publishing {

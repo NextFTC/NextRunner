@@ -9,6 +9,7 @@ import com.acmerobotics.roadrunner.profiles.ProfileParams
 import com.acmerobotics.roadrunner.profiles.TranslationalVelConstraint
 import com.acmerobotics.roadrunner.profiles.VelConstraint
 import com.acmerobotics.roadrunner.profiles.profile
+import com.acmerobotics.roadrunner.profiles.wrtTime
 import com.acmerobotics.roadrunner.trajectories.PositionPathSeqBuilder
 import com.acmerobotics.roadrunner.trajectories.TrajectoryBuilderParams
 import kotlin.random.Random
@@ -95,6 +96,46 @@ class TimingTests {
 
         println("total time $totalTime, avg time $avgTime")
         println("total len $totalLen, avg len $avgLen")
+    }
+
+    @Test
+    fun `line timing test`() {
+        val points = (0..9).map {
+            randomPoint() to randomPoint()
+        }
+
+        val times = points.map {
+            measureTimedValue {
+                val path = TangentPath(
+                    Line(it.first, it.second),
+                    0.0
+                )
+
+                val profile = profile(params.profileParams, path, 0.0, velConstraint, accelConstraint)
+
+                path to profile
+            }
+        }
+
+        times.forEachIndexed { i, it ->
+            println("time $i: ${it.duration.inWholeMilliseconds} ms")
+            println("length $i: ${it.value.first.path.length()}")
+            println("duration $i: ${it.value.second.wrtTime!!.duration}")
+            assert(it.duration.inWholeMilliseconds < 100)
+        }
+
+        val totalTime = times.sumOf { it.duration.inWholeMilliseconds }
+        val avgTime = totalTime / times.size.toDouble()
+
+        val totalLen = times.sumOf { it.value.first.path.length() }
+        val avgLen = totalLen / times.size.toDouble()
+
+        val totalDuration = times.sumOf { it.value.second.wrtTime!!.duration }
+        val avgDuration = totalDuration / times.size.toDouble()
+
+        println("total generation time $totalTime, avg generation time $avgTime")
+        println("total len $totalLen, avg len $avgLen")
+        println("total duration $totalDuration, avg duration $avgDuration")
     }
 
     fun randomPoint(): Vector2d = Vector2d(
