@@ -7,14 +7,8 @@ import com.acmerobotics.roadrunner.geometry.Pose2dDual
 import com.acmerobotics.roadrunner.geometry.Time
 import com.acmerobotics.roadrunner.geometry.Vector2d
 import com.acmerobotics.roadrunner.paths.PosePath
-import com.acmerobotics.roadrunner.profiles.Profile
-import com.acmerobotics.roadrunner.profiles.wrtDisp
 
-interface Trajectory {
-    val path: PosePath
-    val profile: Profile
-
-    fun wrtDisp(): DisplacementTrajectory
+interface Trajectory {fun wrtDisp(): DisplacementTrajectory
     fun wrtTime(): TimeTrajectory
 
     fun length(): Double
@@ -23,8 +17,8 @@ interface Trajectory {
 }
 
 class CancelableTrajectory(
-    override val path: MappedPosePath,
-    override val profile: CancelableProfile,
+    val path: MappedPosePath,
+    val profile: CancelableProfile,
     @JvmField
     val offsets: List<Double>
 ) : Trajectory {
@@ -48,8 +42,8 @@ class CancelableTrajectory(
 }
 
 class DisplacementTrajectory(
-    override val path: PosePath,
-    override val profile: DisplacementProfile
+    val path: PosePath,
+    val profile: DisplacementProfile
 ) : Trajectory {
     constructor(t: CancelableTrajectory) : this(t.path, t.profile.baseProfile)
 
@@ -64,8 +58,8 @@ class DisplacementTrajectory(
 }
 
 class TimeTrajectory(
-    override val path: PosePath,
-    override val profile: TimeProfile
+    val path: PosePath,
+    val profile: TimeProfile
 ) : Trajectory {
     @JvmField val duration = profile.duration
 
