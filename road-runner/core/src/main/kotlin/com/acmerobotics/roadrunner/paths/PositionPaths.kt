@@ -89,7 +89,7 @@ data class Line(
  */
 data class ArclengthReparamCurve2d(
     @JvmField
-    val curve: PositionPath<Internal>,
+    val curve: PositionPath<*>,
     @JvmField
     val samples: IntegralScanResult,
 ) : PositionPath<Arclength> {
@@ -98,7 +98,7 @@ data class ArclengthReparamCurve2d(
      * @param[eps] desired error in the approximate length [length]
      */
     constructor(
-        curve: PositionPath<Internal>,
+        curve: PositionPath<*>,
         eps: Double,
     ) : this(
         curve,
