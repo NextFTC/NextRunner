@@ -316,3 +316,13 @@ class DualNum<Param> constructor(private val values: DoubleArray) {
     operator fun times(c: Vector2d) =
         Vector2dDual(this * c.x, this * c.y)
 }
+
+fun <Param> lerpDual(x: Double, fromLo: Double, fromHi: Double, toLo: DualNum<Param>, toHi: DualNum<Param>): DualNum<Param> {
+    require(toLo.size() == toHi.size()) { "Lower and upper bounds must have the same size" }
+
+    return DualNum(
+        DoubleArray(toLo.size()) {
+            lerp(x, fromLo, fromHi, toLo[it], toHi[it])
+        }
+    )
+}

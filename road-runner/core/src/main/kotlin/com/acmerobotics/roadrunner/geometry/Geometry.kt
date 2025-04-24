@@ -160,6 +160,10 @@ data class Rotation2dDual<Param>(@JvmField val real: DualNum<Param>, @JvmField v
     // derivative of atan2 under unit norm assumption
     fun velocity() = real * imag.drop(1) - imag * real.drop(1)
     fun value() = Rotation2d(real.value(), imag.value())
+
+    fun log() = DualNum<Param>(DoubleArray(size()) {
+        Rotation2d(real[it], imag[it]).log()
+    })
 }
 
 /**
@@ -296,4 +300,114 @@ data class Twist2dDual<Param>(
 ) {
     fun value() = Twist2d(line.value(), angle.value())
     fun velocity() = PoseVelocity2dDual(line.drop(1), angle.drop(1))
+}
+
+/**
+ * Linearly interpolates between two Vector2d objects.
+ *
+ * @param start The starting Vector2d.
+ * @param end The ending Vector2d.
+ * @param t The interpolation parameter, where 0.0 returns `start`, 1.0 returns `end`, and values
+ *          in between return a Vector2d linearly interpolated between `start` and `end`.
+ * @return A new Vector2d that is linearly interpolated between `start` and `end`.
+ */
+fun lerpVector2d(start: Vector2d, end: Vector2d, t: Double): Vector2d {
+    val x = lerp(t, 0.0, 1.0, start.x, end.x)
+    val y = lerp(t, 0.0, 1.0, start.y, end.y)
+    return Vector2d(x, y)
+}
+
+fun <Param> lerpVector2dDual(start: Vector2dDual<Param>, end: Vector2dDual<Param>, t: Double): Vector2dDual<Param> {
+    val x = lerpDual(t, 0.0, 1.0, start.x, end.x)
+    val y = lerpDual(t, 0.0, 1.0, start.y, end.y)
+    return Vector2dDual(x, y)
+}
+
+/**
+ * Linearly interpolates an angle, handling wrap-around.
+ *
+ * @param start The starting angle (in radians).
+ * @param end The ending angle (in radians).
+ * @param t The interpolation parameter, where 0.0 returns `start`, 1.0 returns `end`, and values
+ *          in between return an angle linearly interpolated between `start` and `end`.
+ * @return The interpolated angle (in radians).
+ */
+fun lerpRotation2d(start: Rotation2d, end: Rotation2d, t: Double): Rotation2d {
+    // Calculate the shortest distance between the two angles
+    val diff = (end - start)
+
+    return Rotation2d.exp(start.log() + diff * t)
+}
+
+fun <Param> lerpRotation2dDual(start: Rotation2dDual<Param>, end: Rotation2dDual<Param>, t: Double): Rotation2dDual<Param> {
+    return Rotation2dDual.exp(lerpDual(t, 0.0, 1.0, start.log(), end.log()))
+}
+
+
+/**
+ * Linearly interpolates between two Pose2d objects.
+ *
+ * This function calculates a new Pose2d object that lies between the start and end Pose2d objects
+ * based on the provided interpolation parameter `t`. The `t` parameter determines how far along the
+ * path from `start` to `end` the resulting Pose2d will be.
+ *
+ * @param start The starting Pose2d.
+ * @param end The ending Pose2d.
+ * @param t The interpolation parameter, where 0.0 returns `start`, 1.0 returns `end`, and values
+ *          in between return a Pose2d linearly interpolated between `start` and `end`.
+ * @return A new Pose2d that is linearly interpolated between `start` and `end`.
+ * @throws IllegalArgumentException if `t` is not in the range [0.0, 1.0].
+ */
+fun lerpPose2d(start: Pose2d, end: Pose2d, t: Double): Pose2d {
+    require(t in 0.0..1.0) { "Interpolation parameter t must be between 0.0 and 1.0, but was $t" }
+
+    // Interpolate position
+    val position = lerpVector2d(start.position, end.position, t)
+
+    // Interpolate heading, handling wrap-around
+    val heading = lerpRotation2d(start.heading, end.heading, t)
+
+    return Pose2d(position, heading)
+}
+
+fun <Param> lerpPose2dDual(start: Pose2dDual<Param>, end: Pose2dDual<Param>, t: Double): Pose2dDual<Param> {
+    require(t in 0.0..1.0) { "Interpolation parameter t must be between 0.0 and 1.0, but was $t" }
+
+    // Interpolate position
+    val position = lerpVector2dDual(start.position, end.position, t)
+
+    // Interpolate heading, handling wrap-around
+    val heading = lerpRotation2dDual(start.heading, end.heading, t)
+
+    return Pose2dDual(position, heading)
+}
+
+fun lerpPoseLookup(times: List<Double>, poses: List<Pose2d>, query: Double): Pose2d {
+    val index = times.binarySearch(query)
+
+    if (index >= 0) return poses[index]
+
+    val nextIdx = -(index + 1)
+    val prevIdx = -index
+
+    return lerpPose2d(
+        poses[prevIdx],
+        poses[nextIdx],
+        lerp(query, times[prevIdx], times[nextIdx], 0.0, 1.0)
+    )
+}
+
+fun <Param> lerpPoseLookupDual(times: List<Double>, poses: List<Pose2dDual<Param>>, query: Double): Pose2dDual<Param> {
+    val index = times.binarySearch(query)
+
+    if (index >= 0) return poses[index]
+
+    val nextIdx = -(index + 1)
+    val prevIdx = -index
+
+    return lerpPose2dDual(
+        poses[prevIdx],
+        poses[nextIdx],
+        lerp(query, times[prevIdx], times[nextIdx], 0.0, 1.0)
+    )
 }
