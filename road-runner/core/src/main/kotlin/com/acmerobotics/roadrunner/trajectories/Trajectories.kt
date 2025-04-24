@@ -14,23 +14,12 @@ interface Trajectory {
     val path: PosePath
     val profile: Profile
 
+    fun wrtDisp(): DisplacementTrajectory
+    fun wrtTime(): TimeTrajectory
+
     fun length(): Double
 
     operator fun get(t: Double): Pose2dDual<Time>
-}
-
-val Trajectory.wrtDisp get() = when (this) {
-    is DisplacementTrajectory -> this
-    is TimeTrajectory -> DisplacementTrajectory(this.path, this.profile.wrtDisp!!)
-    is CancelableTrajectory -> DisplacementTrajectory(this.path, this.profile.wrtDisp!!)
-    else -> null
-}
-
-val Trajectory.wrtTime get() = when(this) {
-    is TimeTrajectory -> this
-    is DisplacementTrajectory -> TimeTrajectory(this)
-    is CancelableTrajectory -> TimeTrajectory(this)
-    else -> null
 }
 
 class CancelableTrajectory(
@@ -39,7 +28,6 @@ class CancelableTrajectory(
     @JvmField
     val offsets: List<Double>
 ) : Trajectory {
-
     fun cancel(s: Double): DisplacementTrajectory {
         val offset = s
         return DisplacementTrajectory(
@@ -51,6 +39,9 @@ class CancelableTrajectory(
         )
     }
 
+    override fun wrtDisp() = DisplacementTrajectory(this)
+    override fun wrtTime() = TimeTrajectory(this)
+
     override fun length(): Double = path.length()
 
     override fun get(s: Double) = path[s, 3].reparam(profile[s])
@@ -61,6 +52,9 @@ class DisplacementTrajectory(
     override val profile: DisplacementProfile
 ) : Trajectory {
     constructor(t: CancelableTrajectory) : this(t.path, t.profile.baseProfile)
+
+    override fun wrtDisp() = this
+    override fun wrtTime() = TimeTrajectory(this)
 
     override fun length() = path.length()
 
@@ -78,6 +72,9 @@ class TimeTrajectory(
     constructor(t: CancelableTrajectory) : this(t.path, TimeProfile(t.profile.baseProfile))
 
     constructor(t: DisplacementTrajectory) : this(t.path, TimeProfile(t.profile))
+
+    override fun wrtDisp() = DisplacementTrajectory(this.path, this.profile.dispProfile)
+    override fun wrtTime() = this
 
     override fun length(): Double = path.length()
 

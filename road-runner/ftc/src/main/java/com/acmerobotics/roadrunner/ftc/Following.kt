@@ -10,14 +10,12 @@ import com.acmerobotics.roadrunner.geometry.Vector2d
 import com.acmerobotics.roadrunner.paths.PosePath
 import com.acmerobotics.roadrunner.profiles.AccelConstraint
 import com.acmerobotics.roadrunner.profiles.ProfileParams
+import com.acmerobotics.roadrunner.profiles.TimeProfile
 import com.acmerobotics.roadrunner.profiles.VelConstraint
 import com.acmerobotics.roadrunner.profiles.forwardProfile
-import com.acmerobotics.roadrunner.profiles.wrtTime
 import com.acmerobotics.roadrunner.trajectories.DisplacementTrajectory
 import com.acmerobotics.roadrunner.trajectories.TimeTrajectory
 import com.acmerobotics.roadrunner.trajectories.Trajectory
-import com.acmerobotics.roadrunner.trajectories.wrtDisp
-import com.acmerobotics.roadrunner.trajectories.wrtTime
 
 data class FollowerParams(
     @JvmField
@@ -46,7 +44,7 @@ class DisplacementFollower(
         traj: Trajectory,
         drive: Drive<*, *>
     ) : this(
-        traj.wrtDisp!!,
+        traj.wrtDisp(),
         drive.controller,
         drive.localizer
     )
@@ -112,7 +110,7 @@ class TimeFollower(
         traj: Trajectory,
         drive: Drive<*, *>
     ) : this(
-        traj.wrtTime!!,
+        traj.wrtTime(),
         drive.controller,
         drive.localizer
     )
@@ -126,13 +124,13 @@ class TimeFollower(
     ) : this(
         TimeTrajectory(
             path,
-            forwardProfile(
+            TimeProfile(forwardProfile(
                 drive.followerParams.profileParams,
                 path,
                 0.0,
                 velConstraintOverride,
                 accelConstraintOverride
-            ).wrtTime!!
+            ))
         ),
         drive
     )

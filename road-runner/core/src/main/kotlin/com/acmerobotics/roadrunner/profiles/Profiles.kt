@@ -20,20 +20,6 @@ interface Profile {
     operator fun get(x: Double): DualNum<Time>
 }
 
-val Profile.wrtDisp get() = when (this) {
-    is DisplacementProfile -> this
-    is TimeProfile -> this.dispProfile
-    is CancelableProfile -> this.baseProfile
-    else -> null
-}
-
-val Profile.wrtTime get() = when (this) {
-    is TimeProfile -> this
-    is DisplacementProfile -> TimeProfile(this)
-    is CancelableProfile -> TimeProfile(this.baseProfile)
-    else -> null
-}
-
 /**
  * Acceleration-limited motion profile parameterized by displacement.
  *
