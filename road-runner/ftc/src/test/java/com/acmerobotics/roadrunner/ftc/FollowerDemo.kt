@@ -5,7 +5,7 @@ import com.acmerobotics.roadrunner.geometry.Pose2d
 import com.acmerobotics.roadrunner.trajectories.TrajectoryBuilderParams
 
 class FollowerDemo {
-    fun Drive<*, *>.actionBuilderDisp(startPose: Pose2d) = TrajectoryActionBuilder(
+    fun Drive.actionBuilderDisp(startPose: Pose2d) = TrajectoryActionBuilder(
         { TurnAction(it, this) },
         { FollowTrajectoryAction(
             DisplacementFollower(it, this),
@@ -22,7 +22,7 @@ class FollowerDemo {
         defaultAccelConstraint
     )
 
-    fun Drive<*, *>.actionBuilderTime(startPose: Pose2d) = TrajectoryActionBuilder(
+    fun Drive.actionBuilderTime(startPose: Pose2d) = TrajectoryActionBuilder(
         { TurnAction(it, this) },
         { FollowTrajectoryAction(
             TimeFollower(it, this),

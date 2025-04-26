@@ -13,10 +13,9 @@ import com.acmerobotics.roadrunner.profiles.AccelConstraint
 import com.acmerobotics.roadrunner.profiles.VelConstraint
 import com.acmerobotics.roadrunner.trajectories.TurnConstraints
 
-interface Drive<WI: WheelIncrements<Time>, WV: WheelVelocities<Time>> {
+interface Drive {
     val localizer: Localizer
     val controller: RobotPosVelController
-    val kinematics: RobotKinematics<WI, WV>
 
     val followerParams: FollowerParams
     val defaultVelConstraint: VelConstraint

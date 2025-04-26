@@ -1,4 +1,4 @@
-val libVersion by extra { "1.1.0-SNAP5" }
+val libVersion by extra { "2b2" }
 val dashVersion by extra { "0.4.10" }
 
 plugins {

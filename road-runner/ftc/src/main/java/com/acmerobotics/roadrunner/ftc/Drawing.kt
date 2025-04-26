@@ -5,6 +5,7 @@ package com.acmerobotics.roadrunner.ftc
 import com.acmerobotics.roadrunner.geometry.Pose2d
 import com.acmerobotics.dashboard.canvas.Canvas
 
+@JvmOverloads
 fun drawRobot(canvas: Canvas, pose: Pose2d, radius: Double = 9.0) {
     canvas.setStrokeWidth(1)
     canvas.strokeCircle(pose.position.x, pose.position.y, radius)
@@ -16,7 +17,7 @@ fun drawRobot(canvas: Canvas, pose: Pose2d, radius: Double = 9.0) {
     canvas.strokeLine(p1.x, p1.y, p2.x, p2.y)
 }
 
-fun Drive<*, *>.drawPoseHistory(canvas: Canvas) {
+fun Drive.drawPoseHistory(canvas: Canvas) {
     val xPoints = localizer.poseHistory.map { it.position.x }.toDoubleArray()
     val yPoints = localizer.poseHistory.map { it.position.y }.toDoubleArray()
 

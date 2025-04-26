@@ -13,7 +13,7 @@ class TurnAction(
     @JvmField
     val turn: TimeTurn,
     @JvmField
-    val drive: Drive<*, *>
+    val drive: Drive
 ) : ActionEx() {
     var startTime by Delegates.notNull<Double>()
 

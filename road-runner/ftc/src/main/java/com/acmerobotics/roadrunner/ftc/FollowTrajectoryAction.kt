@@ -18,11 +18,11 @@ class FollowTrajectoryAction(
     @JvmField
     val follower: Follower,
     @JvmField
-    val drive: Drive<*, *>
+    val drive: Drive
 ) : Action {
     constructor(
         traj: Trajectory,
-        drive: Drive<*, *>
+        drive: Drive
     ) : this(
         DisplacementFollower(traj, drive),
         drive
@@ -30,7 +30,7 @@ class FollowTrajectoryAction(
 
     constructor(
         path: PosePath,
-        drive: Drive<*, *>,
+        drive: Drive,
         velConstraintOverride: VelConstraint = drive.followerParams.velConstraint,
         accelConstraintOverride: AccelConstraint = drive.followerParams.accelConstraint
     ) : this(

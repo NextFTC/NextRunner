@@ -42,7 +42,7 @@ class DisplacementFollower(
 ) : Follower {
     constructor(
         traj: Trajectory,
-        drive: Drive<*, *>
+        drive: Drive
     ) : this(
         traj.wrtDisp(),
         drive.controller,
@@ -52,7 +52,7 @@ class DisplacementFollower(
     @JvmOverloads
     constructor(
         path: PosePath,
-        drive: Drive<*, *>,
+        drive: Drive,
         velConstraintOverride: VelConstraint = drive.followerParams.velConstraint,
         accelConstraintOverride: AccelConstraint = drive.followerParams.accelConstraint
     ) : this(
@@ -108,7 +108,7 @@ class TimeFollower(
 ) : Follower {
     constructor(
         traj: Trajectory,
-        drive: Drive<*, *>
+        drive: Drive
     ) : this(
         traj.wrtTime(),
         drive.controller,
@@ -118,7 +118,7 @@ class TimeFollower(
     @JvmOverloads
     constructor(
         path: PosePath,
-        drive: Drive<*, *>,
+        drive: Drive,
         velConstraintOverride: VelConstraint = drive.followerParams.velConstraint,
         accelConstraintOverride: AccelConstraint = drive.followerParams.accelConstraint
     ) : this(
