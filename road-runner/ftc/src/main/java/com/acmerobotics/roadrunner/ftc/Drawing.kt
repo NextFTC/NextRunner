@@ -4,7 +4,6 @@ package com.acmerobotics.roadrunner.ftc
 
 import com.acmerobotics.roadrunner.geometry.Pose2d
 import com.acmerobotics.dashboard.canvas.Canvas
-import com.acmerobotics.roadrunner.control.Drive
 
 fun drawRobot(canvas: Canvas, pose: Pose2d, radius: Double = 9.0) {
     canvas.setStrokeWidth(1)
