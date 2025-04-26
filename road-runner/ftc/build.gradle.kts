@@ -12,6 +12,8 @@ plugins {
     kotlin("android")
     kotlin("plugin.serialization")
 
+    id("org.jetbrains.dokka")
+
     `maven-publish`
 
     id("com.github.node-gradle.node") version "2.2.4"
@@ -19,7 +21,8 @@ plugins {
 
 android {
     namespace = "com.acmerobotics.roadrunner.ftc"
-    compileSdk = 35
+    //noinspection GradleDependency
+    compileSdk = 33
 
     defaultConfig {
     minSdk = 24
@@ -33,6 +36,15 @@ android {
            isMinifyEnabled = false
            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
        }
+    }
+
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_1_8
+        targetCompatibility = JavaVersion.VERSION_1_8
+    }
+
+    kotlinOptions {
+        jvmTarget = "1.8"
     }
 }
 
@@ -72,7 +84,7 @@ val copyWebAssets by tasks.registering(Copy::class) {
 
 android {
     libraryVariants.all {
-        preBuildProvider.get().dependsOn(copyWebAssets)
+        //preBuildProvider.get().dependsOn(copyWebAssets)
     }
 }
 
@@ -82,8 +94,6 @@ repositories {
 }
 
 dependencies {
-    api(kotlin("stdlib-jdk8"))
-
     api(project(":core"))
     api(project(":actions"))
 
