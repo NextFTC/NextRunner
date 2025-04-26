@@ -19,13 +19,6 @@ import com.acmerobotics.roadrunner.trajectories.TrajectoryBuilder
 import com.acmerobotics.roadrunner.trajectories.TrajectoryBuilderParams
 import com.acmerobotics.roadrunner.trajectories.TurnConstraints
 
-private fun seqCons(hd: Action, tl: Action): Action =
-    when (tl) {
-        is NullAction -> hd
-        is SequentialAction -> SequentialAction(listOf(hd) + tl.initialActions)
-        else -> SequentialAction(hd, tl)
-    }
-
 private sealed class MarkerFactory(
     val segmentIndex: Int,
 ) {

@@ -20,22 +20,55 @@ fun interface Action {
      * Draws a preview of the action on canvas [fieldOverlay].
      */
     fun preview(fieldOverlay: Canvas) {}
+
+    /**
+     * Returns a new action that executes this action followed by [a].
+     */
+    fun then(a: Action) = seqCons(this, a)
+    fun then(f: InstantFunction) = seqCons(this, InstantAction(f))
+    fun then(a: () -> Action) = seqCons(this, a())
+
+    /**
+     * Returns a new action that executes this action in parallel with [a].
+     */
+    fun with(a: Action) = parCons(this, a)
+    fun with(f: InstantFunction) = parCons(this, InstantAction(f))
+    fun with(a: () -> Action) = parCons(this, a())
+
+    /**
+     * Returns a new action that executes this action in parallel with [a].
+     */
+    fun race(a: Action) = RaceAction(this, a)
+    fun race(f: InstantFunction) = RaceAction(this, InstantAction(f))
+    fun race(a: () -> Action) = RaceAction(this, a())
+
+    /**
+     * Returns a new action that waits [dt] seconds before executing this action.
+     */
+    fun delay(dt: Double) = SleepAction(dt).then(this)
 }
 
-abstract class InitLoopAction : Action {
-    var initialized = false
+open class ActionEx @JvmOverloads constructor(
+    private val initBlock: (TelemetryPacket) -> Unit = { },
+    private val loopBlock: (TelemetryPacket) -> Boolean = { false },
+    private val endBlock: (TelemetryPacket) -> Unit = { }
+) : Action {
 
-    abstract fun init(p: TelemetryPacket)
-    abstract fun loop(p: TelemetryPacket): Boolean
+    open fun init(packet: TelemetryPacket) = initBlock(packet)
+    open fun loop(packet: TelemetryPacket) = loopBlock(packet)
+    open fun end(packet: TelemetryPacket) = endBlock(packet)
 
-    final override fun run(p: TelemetryPacket): Boolean {
-        if (!initialized) {
-            init(p)
-            initialized = true
-        }
+    private val sequential = SequentialAction(
+        Action { init(it).let { false } },
+        Action { loop(it) },
+        Action { end(it).let { false } }
+    )
 
-        return loop(p)
-    }
+    final override fun run(packet: TelemetryPacket) = sequential.run(packet)
+
+    fun withInit(initBlock: (TelemetryPacket) -> Unit) = ActionEx(initBlock, loopBlock, endBlock)
+    fun withLoop(loopBlock: (TelemetryPacket) -> Boolean) = ActionEx(initBlock, loopBlock, endBlock)
+    fun withEnd(endBlock: (TelemetryPacket) -> Unit) = ActionEx(initBlock, loopBlock, endBlock)
 }
 
 /**
@@ -69,6 +102,13 @@ data class SequentialAction(
     }
 }
 
+internal fun seqCons(hd: Action, tl: Action): Action =
+    when (tl) {
+        is NullAction -> hd
+        is SequentialAction -> SequentialAction(listOf(hd) + tl.initialActions)
+        else -> SequentialAction(hd, tl)
+    }
+
 /**
  * Action combinator that executes the action group [initialActions] in parallel. Each call to [run] on this action
  * calls [run] on _every_ live child action in the order provided. Completed actions are removed from the rotation
@@ -92,6 +132,13 @@ data class ParallelAction(
         }
     }
 }
+
+internal fun parCons(hd: Action, tl: Action): Action =
+    when (tl) {
+        is NullAction -> hd
+        is ParallelAction -> ParallelAction(listOf(hd) + tl.initialActions)
+        else -> ParallelAction(hd, tl)
+    }
 
 /**
  * Action combinator that executes the action group [actions] in parallel. Each call to [run] on this action
