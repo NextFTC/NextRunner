@@ -72,6 +72,31 @@ data class Vector2dDual<Param>(@JvmField val x: DualNum<Param>, @JvmField val y:
 fun <Param> List<Vector2dDual<Param>>.xsDual() = map { it.asPair() }.unzip().first
 fun <Param> List<Vector2dDual<Param>>.ysDual() = map { it.asPair() }.unzip().second
 
+fun List<Vector2dDual<*>>.dva(): List<Triple<Double, Double, Double>> {
+    require(first().x.size() >= 3)
+    return map {
+        Triple(
+            it.value().norm(),
+            it.drop(1).value().norm(),
+            it.drop(2).value().norm()
+        )
+    }
+}
+
+fun <A, B, C> Iterable<Triple<A, B, C>>.unzip(): Triple<List<A>, List<B>, List<C>> {
+    val first = mutableListOf<A>()
+    val second = mutableListOf<B>()
+    val third = mutableListOf<C>()
+
+    for (triple in this) {
+        first.add(triple.first)
+        second.add(triple.second)
+        third.add(triple.third)
+    }
+
+    return Triple(first, second, third)
+}
+
 /**
  * @usesMathJax
  *
