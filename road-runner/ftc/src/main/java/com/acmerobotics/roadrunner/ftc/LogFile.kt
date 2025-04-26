@@ -163,8 +163,7 @@ fun schemaOfClass(c: Class<*>): MessageSchema =
                 if (c.isArray) {
                     ArraySchema(schemaOfClass(c.componentType!!))
                 } else if (c.isEnum) {
-                    // TODO: is there a way to make this cast safe?
-                    EnumSchema(c as Class<Enum<*>>)
+                    EnumSchema(c.asSubclass(Enum::class.java) as Class<Enum<*>>)
                 } else {
                     val fields = TreeMap<String, MessageSchema>()
                     for (f in c.fields) {
