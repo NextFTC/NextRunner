@@ -29,24 +29,23 @@ data class FollowerParams(
 interface Follower {
     val trajectory: Trajectory<*>
     val currentTarget: Pose2d
+    val lastCommand: PoseVelocity2dDual<Time>
 
     val isDone: Boolean
 
-    fun follow() : PoseVelocity2dDual<Time>
+    fun follow()
 }
 
 class DisplacementFollower(
     override val trajectory: DisplacementTrajectory,
-    @JvmField val controller: RobotPosVelController,
-    @JvmField val localizer: Localizer
+    val drive: Drive
 ) : Follower {
     constructor(
         traj: Trajectory<*>,
         drive: Drive
     ) : this(
         traj.wrtDisp(),
-        drive.controller,
-        drive.localizer
+        drive
     )
 
     @JvmOverloads
@@ -78,9 +77,12 @@ class DisplacementFollower(
     override var currentTarget = trajectory.path.begin(1).value()
         private set
 
-    override fun follow() : PoseVelocity2dDual<Time> {
-        val robotVel = localizer.update()
-        val robotPose = localizer.pose
+    override var lastCommand = PoseVelocity2dDual.constant<Time>(PoseVelocity2d(Vector2d(0.0, 0.0), 0.0), 1)
+        private set
+
+    fun getDriveCommand() : PoseVelocity2dDual<Time> {
+        val robotVel = drive.localizer.update()
+        val robotPose = drive.localizer.pose
 
         ds = trajectory.project(robotPose.position, ds)
 
@@ -93,26 +95,29 @@ class DisplacementFollower(
         val target = trajectory[ds]
         currentTarget = target.value()
 
-        return controller.compute(
+        return drive.controller.compute(
             target,
             robotPose,
             robotVel
         )
     }
+
+    override fun follow() {
+        lastCommand = getDriveCommand()
+        drive.setDrivePowersWithFF(lastCommand)
+    }
 }
 
 class TimeFollower(
     override val trajectory: TimeTrajectory,
-    @JvmField val controller: RobotPosVelController,
-    @JvmField val localizer: Localizer
+    val drive: Drive
 ) : Follower {
     constructor(
         traj: Trajectory<*>,
         drive: Drive
     ) : this(
         traj.wrtTime(),
-        drive.controller,
-        drive.localizer
+        drive
     )
 
     @JvmOverloads
@@ -144,7 +149,10 @@ class TimeFollower(
     override var isDone = false
         private set
 
-    override fun follow(): PoseVelocity2dDual<Time> {
+    override var lastCommand = PoseVelocity2dDual.constant<Time>(PoseVelocity2d(Vector2d(0.0, 0.0), 0.0), 1)
+        private set
+
+    fun getDriveCommand(): PoseVelocity2dDual<Time> {
         if (startTime < 0) {
             startTime = now()
         } else {
@@ -157,12 +165,17 @@ class TimeFollower(
         }
 
         val target = trajectory[dt]
-        val robotVel = localizer.update()
+        val robotVel = drive.localizer.update()
 
-        return controller.compute(
+        return drive.controller.compute(
             target,
-            localizer.pose,
+            drive.localizer.pose,
             robotVel
         )
+    }
+
+    override fun follow() {
+        lastCommand = getDriveCommand()
+        drive.setDrivePowersWithFF(lastCommand)
     }
 }

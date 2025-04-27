@@ -52,7 +52,7 @@ class FollowTrajectoryAction(
     val yPoints = points.ys().toDoubleArray()
 
     override fun run(p: TelemetryPacket): Boolean {
-        drive.setDrivePowersWithFF(follower.follow())
+        follower.follow()
 
         p.put("x", drive.localizer.pose.position.x)
         p.put("y", drive.localizer.pose.position.y)
