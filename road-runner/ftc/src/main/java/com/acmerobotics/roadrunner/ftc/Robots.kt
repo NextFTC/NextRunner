@@ -11,6 +11,7 @@ import com.acmerobotics.roadrunner.geometry.PoseVelocity2dDual
 import com.acmerobotics.roadrunner.geometry.Time
 import com.acmerobotics.roadrunner.profiles.AccelConstraint
 import com.acmerobotics.roadrunner.profiles.VelConstraint
+import com.acmerobotics.roadrunner.trajectories.TrajectoryBuilder
 import com.acmerobotics.roadrunner.trajectories.TurnConstraints
 
 interface Drive {
@@ -24,6 +25,9 @@ interface Drive {
 
     fun actionBuilder(startPose: Pose2d): TrajectoryActionBuilder
     fun actionBuilder() = actionBuilder(localizer.pose)
+
+    fun trajectoryBuilder(startPose: Pose2d): TrajectoryBuilder
+    fun trajectoryBuilder() = trajectoryBuilder(localizer.pose)
 
     fun setDrivePowers(powers: PoseVelocity2dDual<Time>)
     fun setDrivePowersWithFF(powers: PoseVelocity2dDual<Time>)
