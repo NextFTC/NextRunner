@@ -11,6 +11,7 @@ import com.acmerobotics.roadrunner.geometry.Vector2dDual
 import com.acmerobotics.roadrunner.profiles.AccelConstraint
 import com.acmerobotics.roadrunner.profiles.VelConstraint
 import com.acmerobotics.roadrunner.trajectories.IdentityPoseMap
+import com.acmerobotics.roadrunner.trajectories.MappedPosePath
 import com.acmerobotics.roadrunner.trajectories.PoseMap
 import com.acmerobotics.roadrunner.trajectories.TimeTrajectory
 import com.acmerobotics.roadrunner.trajectories.TimeTurn
@@ -40,7 +41,7 @@ fun interface TurnActionFactory {
 }
 
 fun interface TrajectoryActionFactory {
-    fun make(t: Trajectory): Action
+    fun make(t: Trajectory<*>): Action
 }
 
 /**
@@ -139,7 +140,10 @@ class TrajectoryActionBuilder private constructor(
             this
         } else {
             val ts = tb.build()
-            val endPoseUnmapped = ts.last().path.basePath.end(1).value()
+            val endPoseUnmapped = when (ts.last().path) {
+                is MappedPosePath -> (ts.last().path as MappedPosePath).basePath.end(2)
+                else -> ts.last().path.end(2)
+            }.value()
             val end = ts.last().path.end(2)
             val endPose = end.value()
             val endTangent = end.velocity().value().linearVel.angleCast()

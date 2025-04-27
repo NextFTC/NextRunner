@@ -1,27 +1,37 @@
+@file:JvmName("Trajectories")
 package com.acmerobotics.roadrunner.trajectories
 
+import com.acmerobotics.roadrunner.geometry.Arclength
+import com.acmerobotics.roadrunner.geometry.Pose2d
 import com.acmerobotics.roadrunner.profiles.CancelableProfile
 import com.acmerobotics.roadrunner.profiles.DisplacementProfile
 import com.acmerobotics.roadrunner.profiles.TimeProfile
 import com.acmerobotics.roadrunner.geometry.Pose2dDual
 import com.acmerobotics.roadrunner.geometry.Time
 import com.acmerobotics.roadrunner.geometry.Vector2d
+import com.acmerobotics.roadrunner.paths.CompositePosePath
 import com.acmerobotics.roadrunner.paths.PosePath
+import com.acmerobotics.roadrunner.profiles.plus
 
-interface Trajectory {fun wrtDisp(): DisplacementTrajectory
-    fun wrtTime(): TimeTrajectory
-
+interface Trajectory<Param> {
     fun length(): Double
 
-    operator fun get(t: Double): Pose2dDual<Time>
+    operator fun get(param: Double): Pose2dDual<Time>
+
+    fun project(query: Vector2d, init: Double): Double
+
+    fun wrtDisp(): DisplacementTrajectory
+    fun wrtTime(): TimeTrajectory
 }
 
 class CancelableTrajectory(
-    val path: MappedPosePath,
+    @JvmField
+    val path: PosePath,
+    @JvmField
     val profile: CancelableProfile,
     @JvmField
     val offsets: List<Double>
-) : Trajectory {
+) : Trajectory<Arclength> {
     fun cancel(s: Double): DisplacementTrajectory {
         val offset = s
         return DisplacementTrajectory(
@@ -39,12 +49,16 @@ class CancelableTrajectory(
     override fun length(): Double = path.length()
 
     override fun get(s: Double) = path[s, 3].reparam(profile[s])
+
+    override fun project(query: Vector2d, init: Double): Double = path.project(query, init)
 }
 
 class DisplacementTrajectory(
+    @JvmField
     val path: PosePath,
+    @JvmField
     val profile: DisplacementProfile
-) : Trajectory {
+) : Trajectory<Arclength> {
     constructor(t: CancelableTrajectory) : this(t.path, t.profile.baseProfile)
 
     override fun wrtDisp() = this
@@ -52,15 +66,17 @@ class DisplacementTrajectory(
 
     override fun length() = path.length()
 
-    fun project(query: Vector2d, init: Double) = com.acmerobotics.roadrunner.paths.project(path, query, init)
+    override fun project(query: Vector2d, init: Double) = path.project(query, init)
 
     override operator fun get(s: Double): Pose2dDual<Time> = path[s, 3].reparam(profile[s])
 }
 
 class TimeTrajectory(
+    @JvmField
     val path: PosePath,
+    @JvmField
     val profile: TimeProfile
-) : Trajectory {
+) : Trajectory<Time> {
     @JvmField val duration = profile.duration
 
     constructor(t: CancelableTrajectory) : this(t.path, TimeProfile(t.profile.baseProfile))
@@ -76,4 +92,6 @@ class TimeTrajectory(
         val s = profile[t]
         return path[s.value(), 3].reparam(s)
     }
+
+    override fun project(query: Vector2d, init: Double): Double = path.project(query, init)
 }

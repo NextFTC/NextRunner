@@ -27,7 +27,7 @@ data class FollowerParams(
 )
 
 interface Follower {
-    val trajectory: Trajectory
+    val trajectory: Trajectory<*>
     val currentTarget: Pose2d
 
     val isDone: Boolean
@@ -41,7 +41,7 @@ class DisplacementFollower(
     @JvmField val localizer: Localizer
 ) : Follower {
     constructor(
-        traj: Trajectory,
+        traj: Trajectory<*>,
         drive: Drive
     ) : this(
         traj.wrtDisp(),
@@ -107,7 +107,7 @@ class TimeFollower(
     @JvmField val localizer: Localizer
 ) : Follower {
     constructor(
-        traj: Trajectory,
+        traj: Trajectory<*>,
         drive: Drive
     ) : this(
         traj.wrtTime(),

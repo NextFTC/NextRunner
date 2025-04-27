@@ -21,7 +21,7 @@ class FollowTrajectoryAction(
     val drive: Drive
 ) : Action {
     constructor(
-        traj: Trajectory,
+        traj: Trajectory<*>,
         drive: Drive
     ) : this(
         DisplacementFollower(traj, drive),
