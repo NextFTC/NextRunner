@@ -21,7 +21,7 @@ repositories {
 dependencies {
     testImplementation("org.jetbrains.kotlin:kotlin-test")
 
-    testImplementation("org.knowm.xchart:xchart:3.8.1")
+    testImplementation("org.knowm.xchart:xchart:3.8.8")
 
     dokkaHtmlPlugin("org.jetbrains.dokka:mathjax-plugin:1.9.10")
 }
