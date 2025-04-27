@@ -1,15 +1,22 @@
 package com.acmerobotics.roadrunner.paths
 
+import com.acmerobotics.roadrunner.TEST_ACCEL_CONSTRAINT
+import com.acmerobotics.roadrunner.TEST_PROFILE_PARAMS
+import com.acmerobotics.roadrunner.TEST_TRAJECTORY_BUILDER_PARAMS
+import com.acmerobotics.roadrunner.TEST_VEL_CONSTRAINT
+import com.acmerobotics.roadrunner.duration
 import com.acmerobotics.roadrunner.geometry.Vector2d
 import com.acmerobotics.roadrunner.profiles.AccelConstraint
 import com.acmerobotics.roadrunner.profiles.AngularVelConstraint
+import com.acmerobotics.roadrunner.profiles.CancelableProfile
 import com.acmerobotics.roadrunner.profiles.MinVelConstraint
 import com.acmerobotics.roadrunner.profiles.ProfileAccelConstraint
 import com.acmerobotics.roadrunner.profiles.ProfileParams
+import com.acmerobotics.roadrunner.profiles.TimeProfile
 import com.acmerobotics.roadrunner.profiles.TranslationalVelConstraint
 import com.acmerobotics.roadrunner.profiles.VelConstraint
 import com.acmerobotics.roadrunner.profiles.profile
-import com.acmerobotics.roadrunner.profiles.wrtTime
+import com.acmerobotics.roadrunner.randomPoint
 import com.acmerobotics.roadrunner.trajectories.PositionPathSeqBuilder
 import com.acmerobotics.roadrunner.trajectories.TrajectoryBuilderParams
 import kotlin.random.Random
@@ -17,30 +24,13 @@ import kotlin.system.measureTimeMillis
 import kotlin.test.Test
 import kotlin.time.measureTimedValue
 
-
-val params = TrajectoryBuilderParams(
-    1e-6,
-    ProfileParams(
-        0.25, 0.1, 1e-2,
-    ),
-)
-
-val velConstraint: VelConstraint = MinVelConstraint(
-    listOf(
-        TranslationalVelConstraint(50.0),
-        AngularVelConstraint(Math.PI)
-    )
-)
-val accelConstraint: AccelConstraint =
-    ProfileAccelConstraint(-10.0, 30.0)
-
 class TimingTests {
     @Test
     fun `profile timing test`() {
         val posPaths = PositionPathSeqBuilder(
             Vector2d(0.0, 0.0),
             0.0,
-            params.arcLengthSamplingEps
+            TEST_TRAJECTORY_BUILDER_PARAMS.arcLengthSamplingEps
         ).splineTo(Vector2d(10.0, 10.0), 0.0)
             .splineTo(Vector2d(-10.0, 0.0), Math.PI)
             .splineTo(Vector2d(0.0, 0.0), Math.PI/2)
@@ -53,7 +43,7 @@ class TimingTests {
         val times = posePaths.mapIndexed { i, it ->
             i to
             measureTimeMillis {
-                profile(params.profileParams, it, 0.0, velConstraint, accelConstraint)
+                profile(TEST_PROFILE_PARAMS, it, 0.0, TEST_VEL_CONSTRAINT, TEST_ACCEL_CONSTRAINT)
             }
         }
 
@@ -72,11 +62,11 @@ class TimingTests {
             measureTimedValue {
                 val bezier = ArclengthReparamCurve2d(
                     BezierCurve2dInternal(pointList[it]),
-                    params.arcLengthSamplingEps,
+                    TEST_TRAJECTORY_BUILDER_PARAMS.arcLengthSamplingEps,
                 )
 
                 val path = TangentPath(bezier, 0.0)
-                val profile = profile(params.profileParams, path, 0.0, velConstraint, accelConstraint)
+                val profile = profile(TEST_PROFILE_PARAMS, path, 0.0, TEST_VEL_CONSTRAINT, TEST_ACCEL_CONSTRAINT)
 
                 path to profile
             }
@@ -111,7 +101,7 @@ class TimingTests {
                     0.0
                 )
 
-                val profile = profile(params.profileParams, path, 0.0, velConstraint, accelConstraint)
+                val profile = profile(TEST_PROFILE_PARAMS, path, 0.0, TEST_VEL_CONSTRAINT, TEST_ACCEL_CONSTRAINT)
 
                 path to profile
             }
@@ -120,7 +110,7 @@ class TimingTests {
         times.forEachIndexed { i, it ->
             println("time $i: ${it.duration.inWholeMilliseconds} ms")
             println("length $i: ${it.value.first.path.length()}")
-            println("duration $i: ${it.value.second.wrtTime!!.duration}")
+            println("duration $i: ${it.value.second.duration()}")
             assert(it.duration.inWholeMilliseconds < 100)
         }
 
@@ -130,16 +120,11 @@ class TimingTests {
         val totalLen = times.sumOf { it.value.first.path.length() }
         val avgLen = totalLen / times.size.toDouble()
 
-        val totalDuration = times.sumOf { it.value.second.wrtTime!!.duration }
+        val totalDuration = times.sumOf { it.value.second.duration() }
         val avgDuration = totalDuration / times.size.toDouble()
 
         println("total generation time $totalTime, avg generation time $avgTime")
         println("total len $totalLen, avg len $avgLen")
         println("total duration $totalDuration, avg duration $avgDuration")
     }
-
-    fun randomPoint(): Vector2d = Vector2d(
-            Random.Default.nextDouble(-72.0, 72.00),
-            Random.Default.nextDouble(-72.0, 72.0)
-        )
 }

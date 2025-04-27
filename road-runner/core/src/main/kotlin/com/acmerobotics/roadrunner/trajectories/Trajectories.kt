@@ -95,3 +95,51 @@ class TimeTrajectory(
 
     override fun project(query: Vector2d, init: Double): Double = path.project(query, init)
 }
+
+class CompositeTrajectory @JvmOverloads constructor(
+    @JvmField
+    val trajectories: List<DisplacementTrajectory>,
+    @JvmField
+    val offsets: List<Double> = trajectories.scan(0.0) { acc, t -> acc + t.length() }
+) : Trajectory<Arclength> {
+    constructor(trajectories: Collection<Trajectory<*>>) : this(trajectories.map { it.wrtDisp() })
+    constructor(vararg trajectories: DisplacementTrajectory) : this(trajectories.toList())
+    constructor(vararg trajectories: Trajectory<*>) : this(trajectories.map { it.wrtDisp() })
+
+    @JvmField
+    val length = offsets.last()
+    @JvmField
+    val path = CompositePosePath(trajectories.map { it.path }, offsets)
+    @JvmField
+    val profile = trajectories.map { it.profile }.reduce { acc, profile -> acc + profile }
+
+    init {
+        require(trajectories.size + 1 == offsets.size) {
+            "trajectories.size (${trajectories.size}) + 1 != offsets.size (${offsets.size})"
+        }
+    }
+
+    override fun get(s: Double): Pose2dDual<Time> {
+        if (s > length) {
+            return Pose2dDual.Companion.constant(trajectories.last().path.end(1).value(), 3)
+        }
+
+        for ((offset, traj) in offsets.zip(trajectories).reversed()) {
+            if (s >= offset) {
+                return traj[s - offset]
+            }
+        }
+
+        return trajectories.first()[0.0]
+    }
+
+    override fun length() = length
+
+    override fun wrtDisp() = DisplacementTrajectory(path, profile)
+    override fun wrtTime() = wrtDisp().wrtTime()
+
+    override fun project(query: Vector2d, init: Double): Double = wrtDisp().project(query, init)
+}
+
+fun compose(vararg trajectories: Trajectory<*>) = CompositeTrajectory(*trajectories)
+fun List<Trajectory<*>>.compose() = CompositeTrajectory(this)

@@ -960,7 +960,7 @@ class TrajectoryBuilder private constructor(
     ) =
         add(pathBuilder.splineToSplineHeading(pose, tangent), velConstraintOverride, accelConstraintOverride)
 
-    fun build(): List<CancelableTrajectory> {
+    fun buildToList(): List<CancelableTrajectory> {
         val rawPaths = pathBuilder.build()
         val offsets = rawPaths.scan(0) { acc, rawPath -> acc + rawPath.paths.size }
         return rawPaths.zip(offsets).map { (rawPath, offset) ->
@@ -984,4 +984,7 @@ class TrajectoryBuilder private constructor(
             )
         }
     }
+
+    fun buildToComposite() = CompositeTrajectory(buildToList())
+    fun build() = buildToList()
 }

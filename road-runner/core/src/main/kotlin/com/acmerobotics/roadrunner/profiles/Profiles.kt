@@ -671,3 +671,13 @@ fun backwardProfile(
         maxVels, endVel, minAccels,
     )
 }
+
+operator fun DisplacementProfile.plus(other: DisplacementProfile): DisplacementProfile {
+    require(this.vels.last() == other.vels.first()) { "this.vels.last() (${this.vels.last()}) != other.vels.first() (${other.vels.first()})" }
+
+    return DisplacementProfile(
+        this.disps + other.disps.drop(1),
+        this.vels + other.vels.drop(1),
+        this.accels + other.accels
+    )
+}

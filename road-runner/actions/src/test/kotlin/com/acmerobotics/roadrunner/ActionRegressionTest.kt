@@ -2,6 +2,19 @@ package com.acmerobotics.roadrunner
 
 import com.acmerobotics.dashboard.canvas.Canvas
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket
+import com.acmerobotics.roadrunner.actions.Action
+import com.acmerobotics.roadrunner.actions.NullAction
+import com.acmerobotics.roadrunner.actions.ParallelAction
+import com.acmerobotics.roadrunner.actions.SequentialAction
+import com.acmerobotics.roadrunner.actions.SleepAction
+import com.acmerobotics.roadrunner.actions.TrajectoryActionBuilder
+import com.acmerobotics.roadrunner.geometry.Pose2d
+import com.acmerobotics.roadrunner.geometry.Rotation2d
+import com.acmerobotics.roadrunner.profiles.ProfileAccelConstraint
+import com.acmerobotics.roadrunner.profiles.TranslationalVelConstraint
+import com.acmerobotics.roadrunner.trajectories.TimeTrajectory
+import com.acmerobotics.roadrunner.trajectories.TimeTurn
+import com.acmerobotics.roadrunner.trajectories.TurnConstraints
 import java.io.File
 import java.io.PrintWriter
 import java.io.StringWriter
@@ -65,7 +78,7 @@ class ActionRegressionTest {
         val base =
             TrajectoryActionBuilder(
                 { TurnAction(it) },
-                { TrajectoryAction(it) },
+                { TrajectoryAction(it.wrtTime()) },
                 TEST_TRAJECTORY_BUILDER_PARAMS,
                 Pose2d(0.0, 0.0, 0.0),
                 0.0,
