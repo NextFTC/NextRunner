@@ -1,8 +1,9 @@
 package com.acmerobotics.roadrunner.ftc
 
 import com.acmerobotics.roadrunner.actions.now
-import com.acmerobotics.roadrunner.control.RobotPosVelController
+import com.acmerobotics.roadrunner.geometry.Arclength
 import com.acmerobotics.roadrunner.geometry.Pose2d
+import com.acmerobotics.roadrunner.geometry.Pose2dDual
 import com.acmerobotics.roadrunner.geometry.PoseVelocity2d
 import com.acmerobotics.roadrunner.geometry.PoseVelocity2dDual
 import com.acmerobotics.roadrunner.geometry.Time
@@ -16,6 +17,9 @@ import com.acmerobotics.roadrunner.profiles.forwardProfile
 import com.acmerobotics.roadrunner.trajectories.DisplacementTrajectory
 import com.acmerobotics.roadrunner.trajectories.TimeTrajectory
 import com.acmerobotics.roadrunner.trajectories.Trajectory
+import com.acmerobotics.roadrunner.trajectories.begin
+import com.acmerobotics.roadrunner.trajectories.duration
+import com.acmerobotics.roadrunner.trajectories.end
 
 data class FollowerParams(
     @JvmField
@@ -27,7 +31,6 @@ data class FollowerParams(
 )
 
 interface Follower {
-    val trajectory: Trajectory<*>
     val currentTarget: Pose2d
     val lastCommand: PoseVelocity2dDual<Time>
 
@@ -37,7 +40,7 @@ interface Follower {
 }
 
 class DisplacementFollower(
-    override val trajectory: DisplacementTrajectory,
+    val trajectory: Trajectory<Arclength>,
     val drive: Drive
 ) : Follower {
     constructor(
@@ -74,7 +77,7 @@ class DisplacementFollower(
     override var isDone = false
         private set
 
-    override var currentTarget = trajectory.path.begin(1).value()
+    override var currentTarget = trajectory.begin.value()
         private set
 
     override var lastCommand = PoseVelocity2dDual.constant<Time>(PoseVelocity2d(Vector2d(0.0, 0.0), 0.0), 1)
@@ -86,7 +89,7 @@ class DisplacementFollower(
 
         ds = trajectory.project(robotPose.position, ds)
 
-        val error = trajectory.path.end(1).value() - robotPose
+        val error = trajectory.end.value() - robotPose
         if (ds >= trajectory.length() || (error.line.norm() < 1.0 && error.angle < Math.toDegrees(5.0))) {
             isDone = true
             return PoseVelocity2dDual.constant(PoseVelocity2d(Vector2d(0.0, 0.0), 0.0), 1)
@@ -109,7 +112,7 @@ class DisplacementFollower(
 }
 
 class TimeFollower(
-    override val trajectory: TimeTrajectory,
+    val trajectory: Trajectory<Time>,
     val drive: Drive
 ) : Follower {
     constructor(
@@ -140,9 +143,10 @@ class TimeFollower(
         drive
     )
 
-    override var currentTarget = trajectory.path.begin(1).value()
+    override var currentTarget = trajectory.begin.value()
         private set
 
+    val duration = trajectory.duration
     var startTime = -1.0
     var dt = 0.0
 
@@ -159,7 +163,7 @@ class TimeFollower(
             dt = now() - startTime
         }
 
-        if (dt >= trajectory.duration) {
+        if (dt >= duration) {
             isDone = true
             return PoseVelocity2dDual.constant(PoseVelocity2d(Vector2d(0.0, 0.0), 0.0), 1)
         }
@@ -176,6 +180,23 @@ class TimeFollower(
 
     override fun follow() {
         lastCommand = getDriveCommand()
+        drive.setDrivePowersWithFF(lastCommand)
+    }
+}
+
+class HoldFollower(pose: Pose2d, val drive: Drive) : Follower {
+    val pose = Pose2dDual.constant<Time>(pose, 3)
+
+    override val currentTarget: Pose2d = pose
+
+    override var lastCommand: PoseVelocity2dDual<Time> = PoseVelocity2dDual.zero()
+        private set
+
+    override var isDone: Boolean = false
+
+    override fun follow() {
+        val vel = drive.localizer.update()
+        lastCommand = drive.controller.compute(pose, drive.localizer.pose, vel)
         drive.setDrivePowersWithFF(lastCommand)
     }
 }

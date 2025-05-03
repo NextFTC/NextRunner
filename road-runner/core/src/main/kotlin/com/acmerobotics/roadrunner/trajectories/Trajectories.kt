@@ -2,7 +2,6 @@
 package com.acmerobotics.roadrunner.trajectories
 
 import com.acmerobotics.roadrunner.geometry.Arclength
-import com.acmerobotics.roadrunner.geometry.Pose2d
 import com.acmerobotics.roadrunner.profiles.CancelableProfile
 import com.acmerobotics.roadrunner.profiles.DisplacementProfile
 import com.acmerobotics.roadrunner.profiles.TimeProfile
@@ -23,6 +22,14 @@ interface Trajectory<Param> {
     fun wrtDisp(): DisplacementTrajectory
     fun wrtTime(): TimeTrajectory
 }
+
+val Trajectory<*>.duration get() = this.wrtTime().duration
+
+val Trajectory<Arclength>.begin get() = get(0.0)
+val Trajectory<Arclength>.end get() = get(length())
+
+val Trajectory<Time>.begin get() = get(0.0)
+val Trajectory<Time>.end get() = get(duration)
 
 class CancelableTrajectory(
     @JvmField
