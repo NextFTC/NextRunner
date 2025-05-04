@@ -20,7 +20,7 @@ import com.acmerobotics.roadrunner.trajectories.TimeTrajectory
 import com.acmerobotics.roadrunner.trajectories.Trajectory
 import com.acmerobotics.roadrunner.trajectories.begin
 import com.acmerobotics.roadrunner.trajectories.duration
-import com.acmerobotics.roadrunner.trajectories.end
+import com.acmerobotics.roadrunner.trajectories.endWrtDisp
 import kotlin.math.ceil
 import kotlin.math.max
 
@@ -45,9 +45,9 @@ interface Follower {
 }
 
 class DisplacementFollower(
-    val trajectory: Trajectory<Arclength>,
-    val drive: Drive
-) : Follower {
+        val trajectory: DisplacementTrajectory,
+        val drive: Drive
+    ) : Follower {
     constructor(
         traj: Trajectory<*>,
         drive: Drive
@@ -94,7 +94,7 @@ class DisplacementFollower(
 
         ds = trajectory.project(robotPose.position, ds)
 
-        val error = trajectory.end.value() - robotPose
+        val error = trajectory.endWrtDisp.value() - robotPose
         if (ds >= trajectory.length() || (error.line.norm() < 1.0 && error.angle < Math.toDegrees(5.0))) {
             isDone = true
             return PoseVelocity2dDual.constant(PoseVelocity2d(Vector2d(0.0, 0.0), 0.0), 1)
@@ -127,7 +127,7 @@ class DisplacementFollower(
 }
 
 class TimeFollower(
-    val trajectory: Trajectory<Time>,
+    val trajectory: TimeTrajectory,
     val drive: Drive
 ) : Follower {
     constructor(
