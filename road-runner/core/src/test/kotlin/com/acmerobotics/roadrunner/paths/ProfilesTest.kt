@@ -250,7 +250,7 @@ class ProfilesTest {
                     .splineTo(Vector2d(0.0, 60.0), Math.PI)
                     .build()
                     .first()
-                    .profile.baseProfile
+                    .cProfile.baseProfile
             )
         )
 
@@ -270,7 +270,7 @@ class ProfilesTest {
                     .splineTo(Vector2d(0.0, 60.0), Math.PI)
                     .build()
                     .first()
-                    .profile.baseProfile
+                    .cProfile.baseProfile
             )
         )
 }
