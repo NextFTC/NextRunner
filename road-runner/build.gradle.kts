@@ -1,4 +1,4 @@
-val libVersion by extra { "2b2" }
+val libVersion by extra { "2.0.0-BETA-2" }
 val dashVersion by extra { "0.4.10" }
 
 plugins {
