@@ -8,6 +8,7 @@ import com.acmerobotics.roadrunner.geometry.PoseVelocity2d
 import com.acmerobotics.roadrunner.geometry.PoseVelocity2dDual
 import com.acmerobotics.roadrunner.geometry.Time
 import com.acmerobotics.roadrunner.geometry.Vector2d
+import com.acmerobotics.roadrunner.geometry.range
 import com.acmerobotics.roadrunner.paths.PosePath
 import com.acmerobotics.roadrunner.profiles.AccelConstraint
 import com.acmerobotics.roadrunner.profiles.ProfileParams
@@ -20,6 +21,8 @@ import com.acmerobotics.roadrunner.trajectories.Trajectory
 import com.acmerobotics.roadrunner.trajectories.begin
 import com.acmerobotics.roadrunner.trajectories.duration
 import com.acmerobotics.roadrunner.trajectories.end
+import kotlin.math.ceil
+import kotlin.math.max
 
 data class FollowerParams(
     @JvmField
@@ -37,6 +40,8 @@ interface Follower {
     val isDone: Boolean
 
     fun follow()
+
+    val points: List<Vector2d> get() = listOf(Vector2d.zero)
 }
 
 class DisplacementFollower(
@@ -108,6 +113,16 @@ class DisplacementFollower(
     override fun follow() {
         lastCommand = getDriveCommand()
         drive.setDrivePowersWithFF(lastCommand)
+    }
+
+    override val points = range(
+        0.0,
+        trajectory.length(),
+        max(2, ceil(trajectory.length() / 2 ).toInt())
+    ).let {
+        List<Vector2d>(it.size) { i ->
+            trajectory[it[i]].value().position
+        }
     }
 }
 
@@ -181,6 +196,16 @@ class TimeFollower(
     override fun follow() {
         lastCommand = getDriveCommand()
         drive.setDrivePowersWithFF(lastCommand)
+    }
+
+    override val points = range(
+        0.0,
+        trajectory.length(),
+        max(2, ceil(trajectory.length() / 2 ).toInt())
+    ).let {
+        List<Vector2d>(it.size) { i ->
+            trajectory[it[i]].value().position
+        }
     }
 }
 

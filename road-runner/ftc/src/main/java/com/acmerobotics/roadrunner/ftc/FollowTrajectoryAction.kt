@@ -38,18 +38,8 @@ class FollowTrajectoryAction(
         drive
     )
 
-    val points = range(
-        0.0,
-        follower.trajectory.length(),
-        max(2, ceil(follower.trajectory.length() / 2 ).toInt())
-    ).let {
-        List<Vector2d>(it.size) { i ->
-            follower.trajectory[it[i]].value().position
-        }
-    }
-
-    val xPoints = points.xs().toDoubleArray()
-    val yPoints = points.ys().toDoubleArray()
+    val xPoints = follower.points.xs().toDoubleArray()
+    val yPoints = follower.points.ys().toDoubleArray()
 
     override fun run(p: TelemetryPacket): Boolean {
         follower.follow()
