@@ -25,20 +25,18 @@ interface Trajectory<Param> {
 
 val Trajectory<*>.duration get() = this.wrtTime().duration
 
-val Trajectory<Arclength>.begin get() = get(0.0)
-val Trajectory<Arclength>.end get() = get(length())
+val Trajectory<*>.begin get() = get(0.0)
 
-val Trajectory<Time>.begin get() = get(0.0)
-val Trajectory<Time>.end get() = get(duration)
+val Trajectory<Arclength>.endWrtDisp get() = get(length())
+val Trajectory<Time>.endWrtTime get() = get(duration)
 
 class CancelableTrajectory(
+    path: PosePath,
     @JvmField
-    val path: PosePath,
-    @JvmField
-    val profile: CancelableProfile,
+    val cProfile: CancelableProfile,
     @JvmField
     val offsets: List<Double>
-) : Trajectory<Arclength> {
+) : DisplacementTrajectory(path, cProfile.baseProfile) {
     fun cancel(s: Double): DisplacementTrajectory {
         val offset = s
         return DisplacementTrajectory(
@@ -46,27 +44,18 @@ class CancelableTrajectory(
                 override fun length() = path.length() - offset
                 override fun get(s: Double, n: Int) = path[s + offset, n]
             },
-            profile.cancel(s)
+            cProfile.cancel(s)
         )
     }
-
-    override fun wrtDisp() = DisplacementTrajectory(this)
-    override fun wrtTime() = TimeTrajectory(this)
-
-    override fun length(): Double = path.length()
-
-    override fun get(s: Double) = path[s, 3].reparam(profile[s])
-
-    override fun project(query: Vector2d, init: Double): Double = path.project(query, init)
 }
 
-class DisplacementTrajectory(
+open class DisplacementTrajectory(
     @JvmField
     val path: PosePath,
     @JvmField
     val profile: DisplacementProfile
 ) : Trajectory<Arclength> {
-    constructor(t: CancelableTrajectory) : this(t.path, t.profile.baseProfile)
+    constructor(t: CancelableTrajectory) : this(t.path, t.cProfile.baseProfile)
 
     override fun wrtDisp() = this
     override fun wrtTime() = TimeTrajectory(this)
@@ -86,7 +75,7 @@ class TimeTrajectory(
 ) : Trajectory<Time> {
     @JvmField val duration = profile.duration
 
-    constructor(t: CancelableTrajectory) : this(t.path, TimeProfile(t.profile.baseProfile))
+    constructor(t: CancelableTrajectory) : this(t.path, TimeProfile(t.cProfile.baseProfile))
 
     constructor(t: DisplacementTrajectory) : this(t.path, TimeProfile(t.profile))
 
@@ -108,17 +97,17 @@ class CompositeTrajectory @JvmOverloads constructor(
     val trajectories: List<DisplacementTrajectory>,
     @JvmField
     val offsets: List<Double> = trajectories.scan(0.0) { acc, t -> acc + t.length() }
-) : Trajectory<Arclength> {
+) : DisplacementTrajectory(
+    CompositePosePath(trajectories.map { it.path }, offsets),
+    trajectories.map { it.profile }.reduce { acc, profile -> acc + profile }
+    ) {
+
     constructor(trajectories: Collection<Trajectory<*>>) : this(trajectories.map { it.wrtDisp() })
     constructor(vararg trajectories: DisplacementTrajectory) : this(trajectories.toList())
     constructor(vararg trajectories: Trajectory<*>) : this(trajectories.map { it.wrtDisp() })
 
     @JvmField
     val length = offsets.last()
-    @JvmField
-    val path = CompositePosePath(trajectories.map { it.path }, offsets)
-    @JvmField
-    val profile = trajectories.map { it.profile }.reduce { acc, profile -> acc + profile }
 
     init {
         require(trajectories.size + 1 == offsets.size) {
@@ -141,11 +130,6 @@ class CompositeTrajectory @JvmOverloads constructor(
     }
 
     override fun length() = length
-
-    override fun wrtDisp() = DisplacementTrajectory(path, profile)
-    override fun wrtTime() = wrtDisp().wrtTime()
-
-    override fun project(query: Vector2d, init: Double): Double = wrtDisp().project(query, init)
 }
 
 fun compose(vararg trajectories: Trajectory<*>) = CompositeTrajectory(*trajectories)
