@@ -31,7 +31,7 @@ data class Vector2d(@JvmField val x: Double, @JvmField val y: Double) {
     fun asPair() = x to y
 
     companion object {
-        @JvmStatic
+        @JvmStatic // TODO ZACH THIS SHOULD BE JVMFIELD
         val zero = Vector2d(0.0, 0.0)
     }
 }
