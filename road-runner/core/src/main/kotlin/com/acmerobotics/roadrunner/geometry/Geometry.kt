@@ -31,7 +31,7 @@ data class Vector2d(@JvmField val x: Double, @JvmField val y: Double) {
     fun asPair() = x to y
 
     companion object {
-        @JvmStatic // TODO ZACH THIS SHOULD BE JVMFIELD
+        @JvmField
         val zero = Vector2d(0.0, 0.0)
     }
 }
@@ -129,7 +129,7 @@ data class Rotation2d(@JvmField val real: Double, @JvmField val imag: Double) {
         @JvmStatic
         fun fromDouble(theta: Double) = exp(theta)
 
-        @JvmStatic
+        @JvmField
         val zero = Rotation2d(0.0, 0.0)
     }
 
@@ -246,7 +246,7 @@ data class Pose2d(
             return Pose2d(translation, heading)
         }
 
-        @JvmStatic
+        @JvmField
         val zero = Pose2d(Vector2d.zero, Rotation2d.zero)
     }
 
@@ -319,7 +319,7 @@ data class PoseVelocity2d(@JvmField val linearVel: Vector2d, @JvmField val angVe
     operator fun minus(pv: PoseVelocity2d) = PoseVelocity2d(linearVel - pv.linearVel, angVel - pv.angVel)
 
     companion object {
-        @JvmStatic
+        @JvmField
         val zero = PoseVelocity2d(Vector2d.zero, 0.0)
     }
 }
