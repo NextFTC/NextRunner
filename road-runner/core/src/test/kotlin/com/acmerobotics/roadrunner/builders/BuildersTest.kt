@@ -484,7 +484,7 @@ fun chartSpline(q: QuinticSpline1d): XYChart {
                 )
                 saveChart(
                     "trajBuilder/issue82Profile",
-                    chartTimeProfile(TimeProfile(traj.profile.baseProfile))
+                    chartTimeProfile(TimeProfile(traj.cProfile.baseProfile))
                 )
             }
 
