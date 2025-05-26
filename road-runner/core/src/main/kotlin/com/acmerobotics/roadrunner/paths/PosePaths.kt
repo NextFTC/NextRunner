@@ -74,6 +74,8 @@ data class CompositePosePath(
         }
     }
 
+    constructor(paths: List<CompositePosePath>) : this(paths.flatMap { it.paths })
+
     @JvmField
     val length = offsets.last()
 
