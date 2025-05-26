@@ -6,7 +6,7 @@ import com.acmerobotics.dashboard.canvas.Canvas
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket
 
 /**
- * Concurrent task for cooperative multitasking with some FTC dashboard hooks. Actions may have mutable state.
+ * Concurrent task for cooperative multitasking with some FTC dashboard hooks. Actions may have a mutable state.
  */
 @JvmDefaultWithoutCompatibility
 fun interface Action {
@@ -24,16 +24,16 @@ fun interface Action {
     /**
      * Returns a new action that executes this action followed by [a].
      */
-    fun then(a: Action) = seqCons(this, a)
-    fun then(f: InstantFunction) = seqCons(this, InstantAction(f))
-    fun then(a: () -> Action) = seqCons(this, a())
+    fun then(a: Action) = SequentialAction(this, a)
+    fun then(f: InstantFunction) = SequentialAction(this, InstantAction(f))
+    fun then(a: () -> Action) = SequentialAction(this, a())
 
     /**
      * Returns a new action that executes this action in parallel with [a].
      */
-    fun with(a: Action) = parCons(this, a)
-    fun with(f: InstantFunction) = parCons(this, InstantAction(f))
-    fun with(a: () -> Action) = parCons(this, a())
+    fun with(a: Action) = ParallelAction(this, a)
+    fun with(f: InstantFunction) = ParallelAction(this, InstantAction(f))
+    fun with(a: () -> Action) = ParallelAction(this, a())
 
     /**
      * Returns a new action that executes this action in parallel with [a].
@@ -59,9 +59,9 @@ open class ActionEx @JvmOverloads constructor(
     open fun end(packet: TelemetryPacket) = endBlock(packet)
 
     private val sequential = SequentialAction(
-        Action { init(it).let { false } },
-        Action { loop(it) },
-        Action { end(it).let { false } }
+        { init(it).let { false } },
+        { loop(it) },
+        { end(it).let { false } }
     )
 
     final override fun run(packet: TelemetryPacket) = sequential.run(packet)
@@ -78,7 +78,9 @@ open class ActionEx @JvmOverloads constructor(
 data class SequentialAction(
     val initialActions: List<Action>
 ) : Action {
-    private var actions = initialActions
+    private var actions = initialActions.flatMap {
+        if (it is SequentialAction) it.initialActions else listOf(it)
+    }
 
     constructor(vararg actions: Action) : this(actions.asList())
 
@@ -102,13 +104,6 @@ data class SequentialAction(
     }
 }
 
-internal fun seqCons(hd: Action, tl: Action): Action =
-    when (tl) {
-        is NullAction -> hd
-        is SequentialAction -> SequentialAction(listOf(hd) + tl.initialActions)
-        else -> SequentialAction(hd, tl)
-    }
-
 /**
  * Action combinator that executes the action group [initialActions] in parallel. Each call to [run] on this action
  * calls [run] on _every_ live child action in the order provided. Completed actions are removed from the rotation
@@ -117,7 +112,9 @@ internal fun seqCons(hd: Action, tl: Action): Action =
 data class ParallelAction(
     val initialActions: List<Action>
 ) : Action {
-    private var actions = initialActions
+    private var actions = initialActions.flatMap {
+        if (it is ParallelAction) it.initialActions else listOf(it)
+    }
 
     constructor(vararg actions: Action) : this(actions.asList())
 
@@ -132,13 +129,6 @@ data class ParallelAction(
         }
     }
 }
-
-internal fun parCons(hd: Action, tl: Action): Action =
-    when (tl) {
-        is NullAction -> hd
-        is ParallelAction -> ParallelAction(listOf(hd) + tl.initialActions)
-        else -> ParallelAction(hd, tl)
-    }
 
 /**
  * Action combinator that executes the action group [actions] in parallel. Each call to [run] on this action
