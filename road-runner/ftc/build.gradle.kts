@@ -46,6 +46,12 @@ android {
     kotlinOptions {
         jvmTarget = "1.8"
     }
+
+    testOptions {
+        unitTests {
+            isReturnDefaultValues = true
+        }
+    }
 }
 
 node {
@@ -109,6 +115,8 @@ dependencies {
 
     testImplementation(kotlin("test"))
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.10.1")
+    testImplementation("io.mockk:mockk:1.14.2")
+    testImplementation("io.mockk:mockk-android:1.14.2")
 
     testImplementation(testFixtures(project(":core")))
 }

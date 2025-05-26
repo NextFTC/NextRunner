@@ -47,3 +47,7 @@ fun randomAngle(): Rotation2d =
 fun randomPose(): Pose2d = Pose2d(randomPoint(), randomAngle())
 
 fun CancelableProfile.duration() = TimeProfile(baseProfile).duration
+
+val Rotation2d.deg get() = Math.toDegrees(log())
+val Rotation2d.repr get() = "$deg°"
+val Pose2d.repr get() = "(${position.x}, ${position.y}, ${heading.repr})"
