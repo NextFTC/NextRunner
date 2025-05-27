@@ -51,11 +51,8 @@ data class BezierCurve1d(
         private infix fun Int.bi(other: Int): Int {
             if (other < 0 || other > this) return 0
             if (other == 0 || other == this) return 1
-            if (other > this / 2) return this bi (this - other)
 
-            return (1..other).reduce { acc, i ->
-                acc * (this - i + 1)
-            }
+            return this.fact() / (other.fact() * (this - other).fact())
         }
 
         fun fromRRSpline(spline: QuinticSpline1d): BezierCurve1d =

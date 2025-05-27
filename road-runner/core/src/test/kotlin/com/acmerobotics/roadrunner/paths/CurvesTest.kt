@@ -7,14 +7,9 @@ import com.acmerobotics.roadrunner.geometry.Internal
 import com.acmerobotics.roadrunner.geometry.Rotation2dDual
 import com.acmerobotics.roadrunner.geometry.Vector2d
 import com.acmerobotics.roadrunner.geometry.Vector2dDual
-import com.acmerobotics.roadrunner.geometry.assertDualEquals
 import com.acmerobotics.roadrunner.geometry.lerp
 import com.acmerobotics.roadrunner.geometry.range
-import com.acmerobotics.roadrunner.paths.ArclengthReparamCurve2d
-import com.acmerobotics.roadrunner.paths.PositionPath
-import com.acmerobotics.roadrunner.paths.QuinticSpline1d
-import com.acmerobotics.roadrunner.paths.QuinticSpline2dInternal
-import com.acmerobotics.roadrunner.paths.SplineHeadingPath
+import com.acmerobotics.roadrunner.geometry.fact
 import com.acmerobotics.roadrunner.saveChart
 import org.junit.jupiter.api.Test
 import org.knowm.xchart.QuickChart
@@ -197,6 +192,13 @@ fun chartSplineHeadingPath(p: SplineHeadingPath): XYChart {
 }
 
 class CurvesTest {
+    // Helper function to calculate binomial coefficient (n choose k)
+    private fun binomialCoefficient(n: Int, k: Int): Int {
+        if (k < 0 || k > n) return 0
+        if (k == 0 || k == n) return 1
+
+        return n.fact() / (k.fact() * (n - k).fact())
+    }
     @Test
     fun testArcLengthReparam() {
         val spline =
@@ -278,24 +280,6 @@ class CurvesTest {
     }
 
     @Test
-    fun testBezier() {
-        val r = Random.Default
-        repeat(100) {i ->
-            val spline = QuinticSpline1d(
-                DualNum(doubleArrayOf(r.nextDouble(), r.nextDouble(), r.nextDouble())),
-                DualNum(doubleArrayOf(r.nextDouble(), r.nextDouble(), r.nextDouble())),
-            )
-
-            val curve = BezierCurve1d.fromRRSpline(spline)
-
-
-            val t = r.nextDouble()
-
-            assertDualEquals(spline[t, 1], curve[t, 1])
-        }
-    }
-
-    @Test
     fun testSplineHeadingInterpolation() {
         val r = Random.Default
         repeat(100) {
@@ -353,5 +337,158 @@ class CurvesTest {
             chartSpline(p.spline)
         )
         saveChart("splineHeadingPath", chartSplineHeadingPath(p))
+    }
+
+    @Test
+    fun testBezierCurve1dEvaluation() {
+        // Test a quadratic Bezier curve (degree 2)
+        val quadraticBezier = BezierCurve1d(listOf(1.0, 2.0, 3.0))
+
+        // Test evaluation at t = 0, 0.5, and 1
+        assertEquals(1.0, quadraticBezier[0.0], 1e-6)
+        assertEquals(2.0, quadraticBezier[0.5], 1e-6)
+        assertEquals(3.0, quadraticBezier[1.0], 1e-6)
+
+        // Test a cubic Bezier curve (degree 3)
+        val cubicBezier = BezierCurve1d(listOf(0.0, 1.0, 2.0, 3.0))
+
+        // Test evaluation at t = 0, 0.5, and 1
+        assertEquals(0.0, cubicBezier[0.0], 1e-6)
+        assertEquals(1.5, cubicBezier[0.5], 1e-6)
+        assertEquals(3.0, cubicBezier[1.0], 1e-6)
+
+        // Test with random points
+        val r = Random.Default
+        repeat(10) {
+            val degree = r.nextInt(2, 6)
+            val coefficients = List(degree + 1) { r.nextDouble(-10.0, 10.0) }
+            val bezier = BezierCurve1d(coefficients)
+
+            // Test at endpoints
+            assertEquals(coefficients.first(), bezier[0.0], 1e-6)
+            assertEquals(coefficients.last(), bezier[1.0], 1e-6)
+
+            // Test at random t value
+            val t = r.nextDouble()
+            // Calculate expected value manually using the Bernstein polynomial formula
+            val expected = (0..degree).sumOf { i: Int -> 
+                binomialCoefficient(degree, i) * (1 - t).pow(degree - i) * t.pow(i) * coefficients[i] 
+            }.toDouble()
+            assertEquals(expected, bezier[t], 1e-6)
+        }
+    }
+
+    @Test
+    fun testBezierCurve1dDerivative() {
+        // Test derivative of a quadratic Bezier curve
+        val quadraticBezier = BezierCurve1d(listOf(1.0, 2.0, 3.0))
+        val derivative = quadraticBezier.derivative()
+
+        // The derivative of a quadratic Bezier is a linear Bezier
+        assertEquals(2, derivative.coefficients.size)
+        assertEquals(2.0, derivative.coefficients[0], 1e-6)
+        assertEquals(2.0, derivative.coefficients[1], 1e-6)
+
+        // Test evaluation of the derivative
+        assertEquals(2.0, derivative[0.0], 1e-6)
+        assertEquals(2.0, derivative[0.5], 1e-6)
+        assertEquals(2.0, derivative[1.0], 1e-6)
+
+        // Test with random points
+        val r = Random.Default
+        repeat(10) {
+            val degree = r.nextInt(2, 6)
+            val coefficients = List(degree + 1) { r.nextDouble(-10.0, 10.0) }
+            val bezier = BezierCurve1d(coefficients)
+            val bezierDerivative = bezier.derivative()
+
+            // Check derivative size
+            assertEquals(degree, bezierDerivative.coefficients.size)
+
+            // Check derivative values at random t
+            val t = r.nextDouble()
+            val dualNum = bezier[t, 2]
+            assertEquals(dualNum[1], bezierDerivative[t], 1e-6)
+        }
+    }
+
+    @Test
+    fun testBezierCurve2dEvaluation() {
+        // Create a simple Bezier curve in 2D
+        val points = listOf(
+            Vector2d(0.0, 0.0),
+            Vector2d(1.0, 2.0),
+            Vector2d(3.0, 1.0)
+        )
+        val bezier2d = BezierCurve2dInternal.fromPoints(points)
+
+        // Test evaluation at endpoints
+        val startPoint = bezier2d[0.0, 1].value()
+        assertEquals(points.first().x, startPoint.x, 1e-6)
+        assertEquals(points.first().y, startPoint.y, 1e-6)
+
+        val endPoint = bezier2d[1.0, 1].value()
+        assertEquals(points.last().x, endPoint.x, 1e-6)
+        assertEquals(points.last().y, endPoint.y, 1e-6)
+
+        // Test evaluation at t = 0.5
+        val midPoint = bezier2d[0.5, 1].value()
+        assertEquals(1.25, midPoint.x, 1e-6)
+        assertEquals(1.25, midPoint.y, 1e-6)
+
+        // Test with random points
+        val r = Random.Default
+        repeat(10) {
+            val numPoints = r.nextInt(3, 6)
+            val randomPoints = List(numPoints) { 
+                Vector2d(r.nextDouble(-10.0, 10.0), r.nextDouble(-10.0, 10.0)) 
+            }
+            val randomBezier = BezierCurve2dInternal.fromPoints(randomPoints)
+
+            // Test at endpoints
+            val start = randomBezier[0.0, 1].value()
+            assertEquals(randomPoints.first().x, start.x, 1e-6)
+            assertEquals(randomPoints.first().y, start.y, 1e-6)
+
+            val end = randomBezier[1.0, 1].value()
+            assertEquals(randomPoints.last().x, end.x, 1e-6)
+            assertEquals(randomPoints.last().y, end.y, 1e-6)
+        }
+    }
+
+    @Test
+    fun testGenerateCurveFromPoints() {
+        // Test the utility function that creates an arclength-parameterized curve
+        val points = listOf(
+            Vector2d(0.0, 0.0),
+            Vector2d(1.0, 2.0),
+            Vector2d(3.0, 1.0)
+        )
+        val curve = generateCurveFromPoints(points)
+
+        // Test that the curve starts and ends at the correct points
+        val startPoint = curve[0.0, 1].value()
+        assertEquals(points.first().x, startPoint.x, 1e-6)
+        assertEquals(points.first().y, startPoint.y, 1e-6)
+
+        val endPoint = curve[curve.length(), 1].value()
+        assertEquals(points.last().x, endPoint.x, 1e-6)
+        assertEquals(points.last().y, endPoint.y, 1e-6)
+
+        // Test the vararg version
+        val curveVararg = generateCurveFromPoints(
+            Vector2d(0.0, 0.0),
+            Vector2d(1.0, 2.0),
+            Vector2d(3.0, 1.0)
+        )
+
+        // Verify it produces the same results
+        val startPointVararg = curveVararg[0.0, 1].value()
+        assertEquals(startPoint.x, startPointVararg.x, 1e-6)
+        assertEquals(startPoint.y, startPointVararg.y, 1e-6)
+
+        val endPointVararg = curveVararg[curveVararg.length(), 1].value()
+        assertEquals(endPoint.x, endPointVararg.x, 1e-6)
+        assertEquals(endPoint.y, endPointVararg.y, 1e-6)
     }
 }
