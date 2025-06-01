@@ -23,9 +23,6 @@ interface Drive {
     val defaultAccelConstraint: AccelConstraint
     val defaultTurnConstraints: TurnConstraints
 
-    fun actionBuilder(startPose: Pose2d): TrajectoryActionBuilder
-    fun actionBuilder() = actionBuilder(localizer.pose)
-
     fun trajectoryBuilder(startPose: Pose2d): TrajectoryBuilder
     fun trajectoryBuilder() = trajectoryBuilder(localizer.pose)
 
