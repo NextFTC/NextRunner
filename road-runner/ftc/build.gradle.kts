@@ -1,10 +1,15 @@
 import com.moowork.gradle.node.yarn.YarnTask
+import java.net.URI
 
 val libVersion = project.property("libVersion").toString()
 val dashVersion = project.property("dashVersion").toString()
 val sdkVersion: String = "10.0.0"
 val nodeVersion: String = "18.12.1"
 val webDir: File = file("${project.projectDir.parent}/web")
+
+val releasesDir: URI = File(project.property("zharelReleasesLocation").toString()).toURI()
+val snapshotsDir: URI = File(project.property("zharelSnapshotsLocation").toString()).toURI()
+
 
 plugins {
     id("com.android.library")
@@ -137,11 +142,11 @@ publishing {
     repositories {
         maven {
             name = "zharelReleases"
-            url = File(project.property("zharelReleasesLocation")!!.toString()).toURI()
+            url = releasesDir
         }
         maven {
             name = "zharelSnapshots"
-            url = File(project.property("zharelSnapshotsLocation")!!.toString()).toURI()
+            url = snapshotsDir
         }
     }
 }

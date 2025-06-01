@@ -3,6 +3,10 @@ import java.net.URI
 val libVersion = project.property("libVersion").toString()
 val dashVersion = project.property("dashVersion").toString()
 
+val releasesDir: URI = File(project.property("zharelReleasesLocation").toString()).toURI()
+val snapshotsDir: URI = File(project.property("zharelSnapshotsLocation").toString()).toURI()
+
+
 plugins {
     kotlin("jvm")
 
@@ -59,11 +63,11 @@ publishing {
     repositories {
         maven {
             name = "zharelReleases"
-            url = File(project.property("zharelReleasesLocation")!!.toString()).toURI()
+            url = releasesDir
         }
         maven {
             name = "zharelSnapshots"
-            url = File(project.property("zharelSnapshotsLocation")!!.toString()).toURI()
+            url = snapshotsDir
         }
     }
 }
