@@ -1,9 +1,8 @@
-val libVersion by extra { "2.0.1" }
-val dashVersion by extra { "0.4.10" }
+// Version properties are now defined in gradle.properties
 
 plugins {
-    id("com.android.application") version "8.0.0" apply false
-    id("com.android.library") version "8.0.0" apply false
+    id("com.android.application") version "8.0.2" apply false
+    id("com.android.library") version "8.0.2" apply false
     id("org.jetbrains.dokka") version "2.0.0" apply false
 
     kotlin("android") version "2.0.0" apply false

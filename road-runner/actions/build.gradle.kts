@@ -1,7 +1,7 @@
 import java.net.URI
 
-val libVersion: String by rootProject.extra
-val dashVersion: String by rootProject.extra
+val libVersion = project.property("libVersion").toString()
+val dashVersion = project.property("dashVersion").toString()
 
 plugins {
     kotlin("jvm")

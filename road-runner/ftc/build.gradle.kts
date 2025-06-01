@@ -1,7 +1,7 @@
 import com.moowork.gradle.node.yarn.YarnTask
 
-val libVersion: String by rootProject.extra
-val dashVersion: String by rootProject.extra
+val libVersion = project.property("libVersion").toString()
+val dashVersion = project.property("dashVersion").toString()
 val sdkVersion: String = "10.0.0"
 val nodeVersion: String = "18.12.1"
 val webDir: File = file("${project.projectDir.parent}/web")
