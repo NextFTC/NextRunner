@@ -12,6 +12,7 @@ import com.acmerobotics.roadrunner.profiles.ProfileParams
 import com.acmerobotics.roadrunner.profiles.TimeProfile
 import com.acmerobotics.roadrunner.profiles.TranslationalVelConstraint
 import com.acmerobotics.roadrunner.profiles.VelConstraint
+import com.acmerobotics.roadrunner.trajectories.PositionPathSeqBuilder
 import com.acmerobotics.roadrunner.trajectories.TrajectoryBuilderParams
 import kotlin.random.Random
 
@@ -35,16 +36,11 @@ val TEST_VEL_CONSTRAINT: VelConstraint = MinVelConstraint(
 val TEST_ACCEL_CONSTRAINT: AccelConstraint =
     ProfileAccelConstraint(-10.0, 30.0)
 
-
-fun randomPoint(): Vector2d = Vector2d(
-    Random.Default.nextDouble(-72.0, 72.0),
-    Random.Default.nextDouble(-72.0, 72.0)
+fun posPathSeqBuilder() = PositionPathSeqBuilder(
+    Vector2d(0.0, 0.0),
+    0.0,
+    TEST_TRAJECTORY_BUILDER_PARAMS.arcLengthSamplingEps
 )
-
-fun randomAngle(): Rotation2d =
-    Rotation2d.exp(Random.Default.nextDouble(-Math.PI, Math.PI))
-
-fun randomPose(): Pose2d = Pose2d(randomPoint(), randomAngle())
 
 fun CancelableProfile.duration() = TimeProfile(baseProfile).duration
 
