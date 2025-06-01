@@ -20,6 +20,8 @@ import com.acmerobotics.roadrunner.trajectories.TrajectoryBuilder
 import com.acmerobotics.roadrunner.trajectories.TrajectoryBuilderParams
 import com.acmerobotics.roadrunner.trajectories.TurnConstraints
 
+private fun seqCons(hd: Action, tl: Action) = SequentialAction(hd, tl)
+
 private sealed class MarkerFactory(
     val segmentIndex: Int,
 ) {
@@ -167,7 +169,7 @@ class TrajectoryActionBuilder private constructor(
                     Pair(tail, ms)
                 ) { (traj, offset), (acc, ms) ->
                     val timeTraj = TimeTrajectory(traj)
-                    val actions = mutableListOf(seqCons(trajectoryActionFactory.make(timeTraj), acc))
+                    val actions = mutableListOf<Action>(seqCons(trajectoryActionFactory.make(timeTraj), acc))
                     val msRem = mutableListOf<MarkerFactory>()
                     for (m in ms) {
                         val i = m.segmentIndex - offset
