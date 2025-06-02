@@ -9,23 +9,37 @@ import com.acmerobotics.roadrunner.geometry.Pose2dDual
 import com.acmerobotics.roadrunner.geometry.Time
 import com.acmerobotics.roadrunner.geometry.Vector2d
 import com.acmerobotics.roadrunner.paths.CompositePosePath
+import com.acmerobotics.roadrunner.paths.MappedPosePath
+import com.acmerobotics.roadrunner.paths.PoseMap
 import com.acmerobotics.roadrunner.paths.PosePath
 import com.acmerobotics.roadrunner.profiles.plus
 
 interface Trajectory<Param> {
     fun length(): Double
+    fun duration() = wrtTime().duration
+
 
     operator fun get(param: Double): Pose2dDual<Time>
+    fun start() = get(0.0)
+    fun endWrtDisp() = wrtDisp()[length()]
+    fun endWrtTime() = wrtTime()[duration()]
 
     fun project(query: Vector2d, init: Double): Double
 
     fun wrtDisp(): DisplacementTrajectory
     fun wrtTime(): TimeTrajectory
+
+    operator fun plus(other: Trajectory<Param>) = CompositeTrajectory(this, other)
+
+    fun map(map: PoseMap) = wrtDisp().let {
+        DisplacementTrajectory(
+            MappedPosePath(it.path, map),
+            it.profile
+        )
+    }
 }
 
 val Trajectory<*>.duration get() = this.wrtTime().duration
-
-val Trajectory<*>.begin get() = get(0.0)
 
 val Trajectory<Arclength>.endWrtDisp get() = get(length())
 val Trajectory<Time>.endWrtTime get() = get(duration)

@@ -19,8 +19,8 @@ interface Drive {
     val controller: RobotPosVelController
 
     val followerParams: FollowerParams
-    val defaultVelConstraint: VelConstraint
-    val defaultAccelConstraint: AccelConstraint
+    val defaultVelConstraint: VelConstraint get() = followerParams.velConstraint
+    val defaultAccelConstraint: AccelConstraint get() = followerParams.accelConstraint
     val defaultTurnConstraints: TurnConstraints
 
     fun trajectoryBuilder(startPose: Pose2d): TrajectoryBuilder

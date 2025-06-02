@@ -28,6 +28,8 @@ interface PosePath {
         val ds = (query - guess.value()) dot guess.drop(1).value()
         clamp(s + ds, 0.0, this.length())
     }
+
+    fun map(map: PoseMap) = MappedPosePath(this, map)
 }
 
 data class TangentPath(
@@ -139,7 +141,20 @@ class TurnPath(
 
 }
 
-/**
- * Project position [query] onto position path [path] starting with initial guess [init].
- */
-fun project(path: PosePath, query: Vector2d, init: Double): Double = path.project(query, init)
+fun interface PoseMap {
+    fun map(pose: Pose2dDual<Arclength>): Pose2dDual<Arclength>
+
+    fun map(pose: Pose2d) = map(Pose2dDual.constant(pose, 1)).value()
+}
+
+object IdentityPoseMap : PoseMap {
+    override fun map(pose: Pose2dDual<Arclength>) = pose
+}
+
+data class MappedPosePath(
+    val basePath: PosePath,
+    val poseMap: PoseMap,
+) : PosePath {
+    override fun length() = basePath.length()
+    override fun get(s: Double, n: Int) = poseMap.map(basePath[s, n])
+}

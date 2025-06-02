@@ -13,8 +13,11 @@ import com.acmerobotics.roadrunner.paths.CompositePosePath
 import com.acmerobotics.roadrunner.paths.CompositePositionPath
 import com.acmerobotics.roadrunner.paths.ConstantHeadingPath
 import com.acmerobotics.roadrunner.paths.HeadingPosePath
+import com.acmerobotics.roadrunner.paths.IdentityPoseMap
 import com.acmerobotics.roadrunner.paths.Line
 import com.acmerobotics.roadrunner.paths.LinearHeadingPath
+import com.acmerobotics.roadrunner.paths.MappedPosePath
+import com.acmerobotics.roadrunner.paths.PoseMap
 import com.acmerobotics.roadrunner.paths.PosePath
 import com.acmerobotics.roadrunner.paths.PositionPath
 import com.acmerobotics.roadrunner.paths.PositionPathView
@@ -616,24 +619,6 @@ class PathBuilder private constructor(
     }
 }
 
-fun interface PoseMap {
-    fun map(pose: Pose2dDual<Arclength>): Pose2dDual<Arclength>
-
-    fun map(pose: Pose2d) = map(Pose2dDual.constant(pose, 1)).value()
-}
-
-class IdentityPoseMap : PoseMap {
-    override fun map(pose: Pose2dDual<Arclength>) = pose
-}
-
-data class MappedPosePath(
-    val basePath: PosePath,
-    val poseMap: PoseMap,
-) : PosePath {
-    override fun length() = basePath.length()
-    override fun get(s: Double, n: Int) = poseMap.map(basePath[s, n])
-}
-
 data class TrajectoryBuilderParams(
     val arcLengthSamplingEps: Double,
     val profileParams: ProfileParams,
@@ -656,7 +641,7 @@ class TrajectoryBuilder private constructor(
         beginEndVel: Double,
         baseVelConstraint: VelConstraint,
         baseAccelConstraint: AccelConstraint,
-        poseMap: PoseMap = IdentityPoseMap(),
+        poseMap: PoseMap = IdentityPoseMap,
     ) :
         this(
             params.profileParams,

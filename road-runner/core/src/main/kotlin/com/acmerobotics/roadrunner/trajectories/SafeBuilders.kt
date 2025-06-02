@@ -6,6 +6,8 @@ import com.acmerobotics.roadrunner.geometry.Arclength
 import com.acmerobotics.roadrunner.geometry.Pose2d
 import com.acmerobotics.roadrunner.geometry.Rotation2d
 import com.acmerobotics.roadrunner.geometry.Vector2d
+import com.acmerobotics.roadrunner.paths.IdentityPoseMap
+import com.acmerobotics.roadrunner.paths.PoseMap
 import com.acmerobotics.roadrunner.paths.PositionPath
 
 class SafePathBuilder internal constructor(private val pathBuilder: PathBuilder) {
@@ -162,7 +164,7 @@ class SafeTrajectoryBuilder internal constructor(private val trajBuilder: Trajec
         beginEndVel: Double,
         baseVelConstraint: VelConstraint,
         baseAccelConstraint: AccelConstraint,
-        poseMap: PoseMap = IdentityPoseMap(),
+        poseMap: PoseMap = IdentityPoseMap,
     ) :
         this(
             TrajectoryBuilder(
@@ -181,7 +183,7 @@ class SafeTrajectoryBuilder internal constructor(private val trajBuilder: Trajec
         beginEndVel: Double,
         baseVelConstraint: VelConstraint,
         baseAccelConstraint: AccelConstraint,
-        poseMap: PoseMap = IdentityPoseMap(),
+        poseMap: PoseMap = IdentityPoseMap,
     ) :
         this(
             params,

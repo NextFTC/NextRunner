@@ -10,9 +10,9 @@ import com.acmerobotics.roadrunner.geometry.Vector2d
 import com.acmerobotics.roadrunner.geometry.Vector2dDual
 import com.acmerobotics.roadrunner.profiles.AccelConstraint
 import com.acmerobotics.roadrunner.profiles.VelConstraint
-import com.acmerobotics.roadrunner.trajectories.IdentityPoseMap
-import com.acmerobotics.roadrunner.trajectories.MappedPosePath
-import com.acmerobotics.roadrunner.trajectories.PoseMap
+import com.acmerobotics.roadrunner.paths.IdentityPoseMap
+import com.acmerobotics.roadrunner.paths.MappedPosePath
+import com.acmerobotics.roadrunner.paths.PoseMap
 import com.acmerobotics.roadrunner.trajectories.TimeTrajectory
 import com.acmerobotics.roadrunner.trajectories.TimeTurn
 import com.acmerobotics.roadrunner.trajectories.Trajectory
@@ -79,7 +79,7 @@ class TrajectoryActionBuilder private constructor(
         baseTurnConstraints: TurnConstraints,
         baseVelConstraint: VelConstraint,
         baseAccelConstraint: AccelConstraint,
-        poseMap: PoseMap = IdentityPoseMap(),
+        poseMap: PoseMap = IdentityPoseMap,
     ) :
         this(
             turnActionFactory,
