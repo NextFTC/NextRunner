@@ -37,6 +37,12 @@ dependencies {
     dokkaHtmlPlugin("org.jetbrains.dokka:mathjax-plugin:1.9.10")
 }
 
+kotlin {
+    compilerOptions {
+        freeCompilerArgs.set(listOf("-Xjvm-default=all"))
+    }
+}
+
 java {
     withSourcesJar()
 }
