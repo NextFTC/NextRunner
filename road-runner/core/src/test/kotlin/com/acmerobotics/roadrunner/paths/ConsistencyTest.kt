@@ -1,9 +1,11 @@
 package com.acmerobotics.roadrunner.paths
 
+import com.acmerobotics.roadrunner.Rotation2d
 import com.acmerobotics.roadrunner.TEST_ACCEL_CONSTRAINT
 import com.acmerobotics.roadrunner.TEST_PROFILE_PARAMS
 import com.acmerobotics.roadrunner.TEST_TRAJECTORY_BUILDER_PARAMS
 import com.acmerobotics.roadrunner.TEST_VEL_CONSTRAINT
+import com.acmerobotics.roadrunner.Vector2d
 import com.acmerobotics.roadrunner.dualEqual
 import com.acmerobotics.roadrunner.dualPoseEqual
 import com.acmerobotics.roadrunner.geometry.Rotation2d
@@ -12,23 +14,19 @@ import com.acmerobotics.roadrunner.geometry.range
 import com.acmerobotics.roadrunner.posPathSeqBuilder
 import com.acmerobotics.roadrunner.profiles.forwardProfile
 import com.acmerobotics.roadrunner.randomAngle
-import com.acmerobotics.roadrunner.randomAngleGen
 import com.acmerobotics.roadrunner.randomPoint
-import com.acmerobotics.roadrunner.randomPointGen
 import com.acmerobotics.roadrunner.trajectories.PositionPathSeqBuilder
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
 import io.kotest.property.arbitrary.arbitrary
+import io.kotest.property.arbitrary.bind
 import io.kotest.property.checkAll
 
 data class SplineTarget(val pos: Vector2d, val tangent: Rotation2d)
 
-val targetArb = arbitrary {
-    val pos = randomPointGen.bind()
-    val tangent = randomAngleGen.bind()
-    SplineTarget(pos, tangent)
-}
+val targetArb = Arb.bind(Arb.Vector2d(), Arb.Rotation2d(), ::SplineTarget)
 
 val random3SplinePath = arbitrary { rs ->
     PositionPathSeqBuilder(

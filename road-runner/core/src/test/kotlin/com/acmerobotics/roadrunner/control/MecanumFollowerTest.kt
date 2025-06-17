@@ -191,7 +191,7 @@ class MecanumFollowerTest {
                 break
             }
 
-            s = project(path, poseEstimate.position, s)
+            s = path.project( poseEstimate.position, s)
             val targetPose = path[s, 3]
 
             println(s)
