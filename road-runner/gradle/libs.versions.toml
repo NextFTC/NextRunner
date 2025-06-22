@@ -1,5 +1,5 @@
 [versions]
-lib = "2.2.0"
+lib = "2.2.1"
 dash = "0.4.10"
 kotlin = "2.0.0"
 kotest = "5.9.1"
