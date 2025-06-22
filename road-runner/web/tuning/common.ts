@@ -21,9 +21,9 @@ function kahanSum(xs: number[]) {
 // https://en.wikipedia.org/wiki/Simple_linear_regression#Simple_linear_regression_without_the_intercept_term_(single_regressor)
 function fitLinearNoIntercept(xs: number[], ys: number[]) {
   return kahanSum(
-    xs.map((x, i) => x * ys[i])
+      xs.map((x, i) => x * ys[i])
   ) / kahanSum(
-    xs.map(x => x * x)
+      xs.map(x => x * x)
   );
 }
 
@@ -49,15 +49,15 @@ export function numDerivOnline(xs: number[], ys: number[]) {
   }
 
   return ys
-    .slice(1)
-    .map((y, i) => (y - ys[i]) / (xs[i + 1] - xs[i]));
+      .slice(1)
+      .map((y, i) => (y - ys[i]) / (xs[i + 1] - xs[i]));
 }
 
 // no output for first or last pair
 export function numDerivOffline(xs: number[], ys: number[]) {
   return ys
-    .slice(2)
-    .map((y, i) => (y - ys[i]) / (xs[i + 2] - xs[i]));
+      .slice(2)
+      .map((y, i) => (y - ys[i]) / (xs[i + 2] - xs[i]));
 }
 
 const CPS_STEP = 0x10000;
@@ -92,7 +92,7 @@ type RegressionOptions = {
 
 // data comes in pairs
 async function newLinearRegressionChart(container: HTMLElement, xs: number[], ys: number[], options: RegressionOptions,
-  onChange?: (m: number, b: number) => void): Promise<(xs: number[], ys: number[]) => void> {
+                                        onChange?: (m: number, b: number) => void): Promise<(xs: number[], ys: number[]) => void> {
   if (xs.length !== ys.length) {
     throw new Error(`${xs.length} !== ${ys.length}`);
   }
@@ -170,8 +170,8 @@ async function newLinearRegressionChart(container: HTMLElement, xs: number[], ys
     ], [0]);
 
     const [m, b] = fit(
-      xs.filter((_, i) => mask[i]),
-      ys.filter((_, i) => mask[i]),
+        xs.filter((_, i) => mask[i]),
+        ys.filter((_, i) => mask[i]),
     );
     setResultText(m, b);
     if (onChange) onChange(m, b);
@@ -422,35 +422,35 @@ export async function loadDeadWheelAngularRampRegression(inputData: InputAngular
   data.parEncVels.forEach((vs, i) => {
     const div = document.createElement('div');
     newLinearRegressionChart(div, angVels, vs.values,
-      {
-        title: `Parallel Wheel ${i} Regression`, slope: 'y-position',
-        xLabel: 'angular velocity [rad/s]', yLabel: 'wheel velocity [ticks/s]'
-      });
+        {
+          title: `Parallel Wheel ${i} Regression`, slope: 'y-position',
+          xLabel: 'angular velocity [rad/s]', yLabel: 'wheel velocity [ticks/s]'
+        });
     deadWheelCharts.appendChild(div);
   });
   data.perpEncVels.forEach((vs, i) => {
     const div = document.createElement('div');
     newLinearRegressionChart(div, angVels, vs.values,
-      {
-        title: `Perpendicular Wheel ${i} Regression`, slope: 'x-position',
-        xLabel: 'angular velocity [rad/s]', yLabel: 'wheel velocity [ticks/s]'
-      });
+        {
+          title: `Perpendicular Wheel ${i} Regression`, slope: 'x-position',
+          xLabel: 'angular velocity [rad/s]', yLabel: 'wheel velocity [ticks/s]'
+        });
     deadWheelCharts.appendChild(div);
   });
 
   const setParams = await (async () => {
     const allPowers = [...data.leftPowers, ...data.rightPowers];
     const appliedVoltages = data.voltages.values.map((v, i) =>
-      allPowers.reduce((acc, ps) => Math.max(acc, ps.values[i]), 0) * v);
+        allPowers.reduce((acc, ps) => Math.max(acc, ps.values[i]), 0) * v);
 
     const setTrackWidthData = await newLinearRegressionChart(
-      document.getElementById('trackWidthChart')!,
-      [], [],
-      { title: 'Track Width Regression', slope: 'track width', xLabel: 'angular velocity [rad/s]', yLabel: 'wheel velocity [ticks/s]' },
+        document.getElementById('trackWidthChart')!,
+        [], [],
+        { title: 'Track Width Regression', slope: 'track width', xLabel: 'angular velocity [rad/s]', yLabel: 'wheel velocity [ticks/s]' },
     );
 
     return (kV: number, kS: number) => setTrackWidthData(angVels, appliedVoltages.map((v) =>
-      (v - kS) / kV * (data.type === 'mecanum' ? 2 : 1)));
+        (v - kS) / kV * (data.type === 'mecanum' ? 2 : 1)));
   })();
 
   const kvInput = document.getElementById('kv')! as HTMLInputElement;
@@ -468,36 +468,36 @@ export async function loadDriveEncoderAngularRampRegression(inputData: InputAngu
   const data = prepareAngularRampData(inputData);
 
   await newLinearRegressionChart(
-    document.getElementById('rampChart')!,
-    [
-      ...data.leftEncVels.flatMap(vs => vs.values.map(v => -v)),
-      ...data.rightEncVels.flatMap(vs => vs.values),
-    ],
-    [
-      ...data.leftPowers.flatMap(ps => {
-        return ps.values.map((p, i) => -p * data.voltages.values[i]);
-      }),
-      ...data.rightPowers.flatMap(ps => {
-        return ps.values.map((p, i) => p * data.voltages.values[i]);
-      }),
-    ],
-    {
-      title: 'Feedforward Regression', slope: 'kV', intercept: 'kS',
-      xLabel: 'wheel velocity [ticks/s]', yLabel: 'applied voltage [V]'
-    },
+      document.getElementById('rampChart')!,
+      [
+        ...data.leftEncVels.flatMap(vs => vs.values.map(v => -v)),
+        ...data.rightEncVels.flatMap(vs => vs.values),
+      ],
+      [
+        ...data.leftPowers.flatMap(ps => {
+          return ps.values.map((p, i) => -p * data.voltages.values[i]);
+        }),
+        ...data.rightPowers.flatMap(ps => {
+          return ps.values.map((p, i) => p * data.voltages.values[i]);
+        }),
+      ],
+      {
+        title: 'Feedforward Regression', slope: 'kV', intercept: 'kS',
+        xLabel: 'wheel velocity [ticks/s]', yLabel: 'applied voltage [V]'
+      },
   );
 
   const angVels = getPosZAngVelocity(data).slice(1, -1);
 
   await newLinearRegressionChart(
-    document.getElementById('trackWidthChart')!,
-    angVels,
-    angVels.map((_, i) =>
-      (data.leftEncVels.reduce((acc, vs) => acc - vs.values[i], 0) / data.leftEncVels.length
-        + data.rightEncVels.reduce((acc, vs) => acc + vs.values[i], 0) / data.rightEncVels.length)
-      * (data.type === 'mecanum' ? 0.5 : 1)
-    ),
-    { title: 'Track Width Regression', slope: 'track width', xLabel: 'angular velocity [rad/s]', yLabel: 'wheel velocity [ticks/s]' },
+      document.getElementById('trackWidthChart')!,
+      angVels,
+      angVels.map((_, i) =>
+          (data.leftEncVels.reduce((acc, vs) => acc - vs.values[i], 0) / data.leftEncVels.length
+              + data.rightEncVels.reduce((acc, vs) => acc + vs.values[i], 0) / data.rightEncVels.length)
+          * (data.type === 'mecanum' ? 0.5 : 1)
+      ),
+      { title: 'Track Width Regression', slope: 'track width', xLabel: 'angular velocity [rad/s]', yLabel: 'wheel velocity [ticks/s]' },
   );
 
   return [];
@@ -543,13 +543,13 @@ export async function loadForwardRampRegression(inputData: InputForwardRampData)
   const data = prepareForwardRampData(inputData);
 
   const appliedVoltages = data.forwardEncVels.flatMap(() =>
-    data.voltages.values.map((v, i) =>
-      data.powers.reduce((acc, ps) => Math.max(acc, ps.values[i]), 0) * v));
+      data.voltages.values.map((v, i) =>
+          data.powers.reduce((acc, ps) => Math.max(acc, ps.values[i]), 0) * v));
 
   await newLinearRegressionChart(
-    document.getElementById('rampChart')!,
-    data.forwardEncVels.flatMap(v => v.values), appliedVoltages,
-    { title: 'Forward Ramp Regression', slope: 'kV', intercept: 'kS', xLabel: 'forward velocity [ticks/s]', yLabel: 'applied voltage [V]' },
+      document.getElementById('rampChart')!,
+      data.forwardEncVels.flatMap(v => v.values), appliedVoltages,
+      { title: 'Forward Ramp Regression', slope: 'kV', intercept: 'kS', xLabel: 'forward velocity [ticks/s]', yLabel: 'applied voltage [V]' },
   );
 
   return [];
@@ -604,22 +604,22 @@ export async function loadLateralRampRegression(inputData: InputLateralRampData)
   const data = prepareLateralRampData(inputData);
 
   const appliedVoltages = data.perpEncVels.flatMap(() =>
-    data.voltages.values.map((v, i) =>
-      // TODO: Why use max here over a sum? The times are all off anyway.
-      Math.max(
-        -data.frontLeftPower.values[i],
-        data.backLeftPower.values[i],
-        data.frontRightPower.values[i],
-        -data.backRightPower.values[i],
-        0,
-      ) * v));
+      data.voltages.values.map((v, i) =>
+          // TODO: Why use max here over a sum? The times are all off anyway.
+          Math.max(
+              -data.frontLeftPower.values[i],
+              data.backLeftPower.values[i],
+              data.frontRightPower.values[i],
+              -data.backRightPower.values[i],
+              0,
+          ) * v));
   const allPerpEncVels = data.perpEncVels.flatMap(v => v.values);
 
   const setParams = await (async () => {
     const setData = await newLinearRegressionChart(
-      document.getElementById('rampChart')!,
-      [], [],
-      { title: 'Lateral Ramp Regression', slope: 'lateral in per tick', xLabel: 'expected velocity from feedforward [ticks/s]', yLabel: 'actual velocity [in/s]' },
+        document.getElementById('rampChart')!,
+        [], [],
+        { title: 'Lateral Ramp Regression', slope: 'lateral in per tick', xLabel: 'expected velocity from feedforward [ticks/s]', yLabel: 'actual velocity [in/s]' },
     );
 
     return (inPerTick: number, kV: number, kS: number) => {
