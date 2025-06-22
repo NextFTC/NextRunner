@@ -1,10 +1,10 @@
 import com.moowork.gradle.node.yarn.YarnTask
 import java.net.URI
+import kotlin.collections.mapOf
 
-val libVersion = project.property("libVersion").toString()
-val dashVersion = project.property("dashVersion").toString()
-val sdkVersion: String = "10.0.0"
 val nodeVersion: String = "18.12.1"
+
+
 val webDir: File = file("${project.projectDir.parent}/web")
 
 val releasesDir: URI = File(project.property("zharelReleasesLocation").toString()).toURI()
@@ -70,7 +70,7 @@ val yarnInstall = tasks.named("yarn_install")
 
 tasks.named<YarnTask>("yarn_build") {
     setEnvironment(
-        mapOf("VITE_APP_VERSION" to libVersion)
+        mapOf("VITE_APP_VERSION" to libs.versions.lib.get())
     )
 
     dependsOn(yarnInstall)
@@ -96,7 +96,15 @@ val copyWebAssets by tasks.registering(Copy::class) {
 
 android {
     libraryVariants.all {
-        //preBuildProvider.get().dependsOn(copyWebAssets)
+        preBuildProvider.get().dependsOn(copyWebAssets)
+    }
+
+    publishing {
+        multipleVariants {
+            allVariants()
+            withSourcesJar()
+            withJavadocJar()
+        }
     }
 }
 
@@ -109,20 +117,15 @@ dependencies {
     api(project(":core"))
     api(project(":actions"))
 
-    api("com.acmerobotics.dashboard:core:$dashVersion")
-    api("com.acmerobotics.dashboard:dashboard:$dashVersion")
+    implementation(libs.bundles.dashboard)
 
-    implementation("org.firstinspires.ftc:FtcCommon:$sdkVersion")
-    implementation("org.firstinspires.ftc:RobotCore:$sdkVersion")
-    implementation("org.firstinspires.ftc:Hardware:$sdkVersion")
+    implementation(libs.bundles.ftcsdk)
 
     implementation("com.fasterxml.jackson.core:jackson-databind:2.12.7")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.8.0")
 
     testImplementation(kotlin("test"))
-    testImplementation("org.junit.jupiter:junit-jupiter-api:5.10.1")
-    testImplementation("io.mockk:mockk:1.14.2")
-    testImplementation("io.mockk:mockk-android:1.14.2")
+    testImplementation(libs.bundles.kotest)
 
     testImplementation(testFixtures(project(":core")))
 }
@@ -132,7 +135,7 @@ publishing {
         create<MavenPublication>("maven") {
             groupId = "dev.nextftc.nextrunner"
             artifactId = "ftc"
-            version = libVersion
+            version = libs.versions.lib.get()
 
             afterEvaluate {
                 from(components["release"])

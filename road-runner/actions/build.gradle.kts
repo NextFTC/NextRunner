@@ -1,8 +1,5 @@
 import java.net.URI
 
-val libVersion = project.property("libVersion").toString()
-val dashVersion = project.property("dashVersion").toString()
-
 val releasesDir: URI = File(project.property("zharelReleasesLocation").toString()).toURI()
 val snapshotsDir: URI = File(project.property("zharelSnapshotsLocation").toString()).toURI()
 
@@ -25,7 +22,7 @@ repositories {
 dependencies {
     api(project(":core"))
 
-    api("com.acmerobotics.dashboard:core:$dashVersion")
+    api(libs.dashboard.core)
 
     testImplementation("org.jetbrains.kotlin:kotlin-test")
 
@@ -40,6 +37,7 @@ kotlin {
 
 java {
     withSourcesJar()
+    withJavadocJar()
 }
 
 tasks.named<Test>("test") {
@@ -51,7 +49,7 @@ publishing {
         create<MavenPublication>("maven") {
             groupId = "dev.nextftc.nextrunner"
             artifactId = "actions"
-            version = libVersion
+            version = libs.versions.lib.get()
 
             from(components["java"])
         }

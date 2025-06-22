@@ -1,8 +1,5 @@
 import java.net.URI
 
-val libVersion = project.property("libVersion").toString()
-val kotestVersion = project.property("kotestVersion").toString()
-
 val releasesDir: URI = File(project.property("zharelReleasesLocation").toString()).toURI()
 val snapshotsDir: URI = File(project.property("zharelSnapshotsLocation").toString()).toURI()
 
@@ -23,11 +20,9 @@ repositories {
 }
 
 dependencies {
-    testImplementation("org.jetbrains.kotlin:kotlin-test")
-    testImplementation("io.kotest:kotest-runner-junit5:$kotestVersion")
+    testImplementation(libs.kotlin.test)
 
-    testFixturesApi("io.kotest:kotest-assertions-core:$kotestVersion")
-    testFixturesApi("io.kotest:kotest-property:$kotestVersion")
+    testFixturesApi(libs.bundles.kotest)
 
     testImplementation("org.knowm.xchart:xchart:3.8.8")
 
@@ -42,6 +37,7 @@ kotlin {
 
 java {
     withSourcesJar()
+    withJavadocJar()
 }
 
 tasks.named<Test>("test") {
@@ -53,7 +49,7 @@ publishing {
         create<MavenPublication>("maven") {
             groupId = "dev.nextftc.nextrunner"
             artifactId = "core"
-            version = libVersion
+            version = libs.versions.lib.get()
 
             from(components["java"])
         }
