@@ -28,6 +28,10 @@ fun interface Action {
      */
     fun preview(fieldOverlay: Canvas) {}
 
+    /**
+     * The action's requirements (optional).
+     * It is up to the action queue to resolve requirements.
+     */
     val requirements: Set<Any> get() = emptySet()
 
     /**

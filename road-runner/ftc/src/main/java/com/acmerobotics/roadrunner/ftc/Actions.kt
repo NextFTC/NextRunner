@@ -7,6 +7,7 @@ import com.acmerobotics.dashboard.FtcDashboard
 import com.acmerobotics.dashboard.canvas.Canvas
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket
 import com.acmerobotics.roadrunner.actions.Action
+import com.acmerobotics.roadrunner.actions.Interruptible
 import com.qualcomm.ftccommon.FtcEventLoop
 import com.qualcomm.ftccommon.FtcRobotControllerSettingsActivity
 import com.qualcomm.robotcore.eventloop.opmode.OpMode
@@ -55,6 +56,16 @@ object ActionRunner : OpModeManagerNotifier.Notifications {
      */
     @JvmStatic
     fun run(action: Action) {
+        action.requirements.forEach { req ->
+            _actions.forEach { currAction ->
+                if (req in currAction.requirements) {
+                    _actions.remove(currAction)
+                }
+                if (currAction is Interruptible) {
+                    _actions.add(currAction.onInterrupt())
+                }
+            }
+        }
         _actions.addLast(action)
     }
 
@@ -63,7 +74,7 @@ object ActionRunner : OpModeManagerNotifier.Notifications {
      */
     @JvmStatic
     fun run(actions: Collection<Action>) {
-        _actions.addAll(actions)
+        actions.forEach(::run)
     }
 
     /**
@@ -71,7 +82,7 @@ object ActionRunner : OpModeManagerNotifier.Notifications {
      */
     @JvmStatic
     fun run(vararg actions: Action) {
-        _actions.addAll(actions)
+        actions.forEach(::run)
     }
 
     /**
