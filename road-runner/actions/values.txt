@@ -16,6 +16,6 @@ time markers
 (seq (sleep 1.0000000000) a)
 
 disp markers
-(par traj (seq (sleep 0.4472135955) A))
+(par traj (seq (sleep 0.4472135950) A))
 (par traj (seq (sleep 0.3162277660) A))
 (par (seq traj traj) (seq (sleep 0.3162277660) A))

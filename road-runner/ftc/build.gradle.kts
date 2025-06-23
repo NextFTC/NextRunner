@@ -125,6 +125,7 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.8.0")
 
     testImplementation(kotlin("test"))
+    testImplementation(libs.mockk)
     testImplementation(libs.bundles.kotest)
 
     testImplementation(testFixtures(project(":core")))

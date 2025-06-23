@@ -1,13 +1,8 @@
-package com.acmerobotics.roadrunner
+package com.acmerobotics.roadrunner.actions
 
 import com.acmerobotics.dashboard.canvas.Canvas
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket
-import com.acmerobotics.roadrunner.actions.Action
-import com.acmerobotics.roadrunner.actions.NullAction
-import com.acmerobotics.roadrunner.actions.ParallelAction
-import com.acmerobotics.roadrunner.actions.SequentialAction
-import com.acmerobotics.roadrunner.actions.SleepAction
-import com.acmerobotics.roadrunner.actions.TrajectoryActionBuilder
+import com.acmerobotics.roadrunner.TEST_TRAJECTORY_BUILDER_PARAMS
 import com.acmerobotics.roadrunner.geometry.Pose2d
 import com.acmerobotics.roadrunner.geometry.Rotation2d
 import com.acmerobotics.roadrunner.profiles.ProfileAccelConstraint
@@ -23,54 +18,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFails
 import kotlin.test.assertFalse
-
-class TrajectoryAction(val t: TimeTrajectory) : Action {
-    override fun run(p: TelemetryPacket): Boolean {
-        TODO("Not yet implemented")
-    }
-
-    override fun preview(fieldOverlay: Canvas) {
-        TODO("Not yet implemented")
-    }
-
-    override fun toString() = "Trajectory"
-}
-
-class TurnAction(val t: TimeTurn) : Action {
-    override fun run(p: TelemetryPacket): Boolean {
-        TODO("Not yet implemented")
-    }
-
-    override fun preview(fieldOverlay: Canvas) {
-        TODO("Not yet implemented")
-    }
-
-    override fun toString() = "Turn"
-}
-
-class LabelAction(val s: String) : Action {
-    override fun run(p: TelemetryPacket): Boolean {
-        TODO("Not yet implemented")
-    }
-
-    override fun preview(fieldOverlay: Canvas) {
-        TODO("Not yet implemented")
-    }
-
-    override fun toString() = s
-}
-
-fun sexpFromAction(a: Action): Sexp =
-    when (a) {
-        is TrajectoryAction -> Sexp.Atom("traj")
-        is TurnAction -> Sexp.Atom("turn")
-        is LabelAction -> Sexp.Atom(a.s)
-        is SleepAction -> Sexp.list(Sexp.Atom("sleep"), Sexp.Atom(String.format("%.10f", a.dt)))
-        is SequentialAction -> Sexp.list(listOf(Sexp.Atom("seq")) + a.initialActions.map(::sexpFromAction))
-        is ParallelAction -> Sexp.list(listOf(Sexp.Atom("par")) + a.initialActions.map(::sexpFromAction))
-        is NullAction -> Sexp.Atom("null")
-        else -> Sexp.Atom("unk")
-    }
+import kotlin.time.DurationUnit
 
 class ActionRegressionTest {
     companion object {
@@ -91,7 +39,6 @@ class ActionRegressionTest {
     }
 
     @Test
-    @Strictfp
     fun test() {
         val sw = StringWriter()
         PrintWriter(sw).use { pw ->
@@ -210,5 +157,22 @@ class ActionRegressionTest {
                 .build()
                 .toString()
         }
+    }
+
+    @Test
+    fun `test sequential wrapping`() {
+        val seq1 = SequentialAction(LabelAction("A"), LabelAction("B"))
+        val seq2 = SequentialAction(
+            LabelAction("A"),
+            SequentialAction(
+                LabelAction("B"),
+                LabelAction("C")
+            )
+        )
+
+
+        println(prettyPrint(sexpFromAction(seq1)))
+        println(prettyPrint(sexpFromAction(seq2)))
+
     }
 }

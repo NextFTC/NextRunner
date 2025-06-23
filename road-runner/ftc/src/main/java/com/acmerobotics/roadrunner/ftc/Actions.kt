@@ -2,12 +2,17 @@
 
 package com.acmerobotics.roadrunner.ftc
 
+import android.content.Context
 import com.acmerobotics.dashboard.FtcDashboard
 import com.acmerobotics.dashboard.canvas.Canvas
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket
 import com.acmerobotics.roadrunner.actions.Action
+import com.acmerobotics.roadrunner.actions.Interruptible
+import com.qualcomm.ftccommon.FtcEventLoop
+import com.qualcomm.ftccommon.FtcRobotControllerSettingsActivity
 import com.qualcomm.robotcore.eventloop.opmode.OpMode
 import com.qualcomm.robotcore.eventloop.opmode.OpModeManagerNotifier
+import org.firstinspires.ftc.ftccommon.external.OnCreateEventLoop
 
 /**
  * Run [a] to completion in a blocking loop.
@@ -51,6 +56,16 @@ object ActionRunner : OpModeManagerNotifier.Notifications {
      */
     @JvmStatic
     fun run(action: Action) {
+        action.requirements.forEach { req ->
+            _actions.forEach { currAction ->
+                if (req in currAction.requirements) {
+                    _actions.remove(currAction)
+                }
+                if (currAction is Interruptible) {
+                    _actions.add(currAction.onInterrupt())
+                }
+            }
+        }
         _actions.addLast(action)
     }
 
@@ -59,7 +74,7 @@ object ActionRunner : OpModeManagerNotifier.Notifications {
      */
     @JvmStatic
     fun run(actions: Collection<Action>) {
-        _actions.addAll(actions)
+        actions.forEach(::run)
     }
 
     /**
@@ -67,7 +82,7 @@ object ActionRunner : OpModeManagerNotifier.Notifications {
      */
     @JvmStatic
     fun run(vararg actions: Action) {
-        _actions.addAll(actions)
+        actions.forEach(::run)
     }
 
     /**
@@ -81,6 +96,12 @@ object ActionRunner : OpModeManagerNotifier.Notifications {
             it.run(p)
         }
         dash.value.sendTelemetryPacket(p)
+    }
+
+    @OnCreateEventLoop
+    @JvmStatic
+    fun register(context: Context, eventLoop: FtcEventLoop) {
+        eventLoop.opModeManager.registerListener(this)
     }
 
     override fun onOpModePreInit(p0: OpMode?) {

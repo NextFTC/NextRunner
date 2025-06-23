@@ -20,7 +20,12 @@ import com.acmerobotics.roadrunner.trajectories.TrajectoryBuilder
 import com.acmerobotics.roadrunner.trajectories.TrajectoryBuilderParams
 import com.acmerobotics.roadrunner.trajectories.TurnConstraints
 
-private fun seqCons(hd: Action, tl: Action) = SequentialAction(hd, tl)
+private fun seqCons(hd: Action, tl: Action) = SequentialAction(hd, tl).withoutNulls().let {
+    if (it.actions.size == 1) it.actions.first() else it
+}
+
+fun SequentialAction.withoutNulls(): SequentialAction = SequentialAction(actions.filter { it !is NullAction })
+fun ParallelAction.withoutNulls(): ParallelAction = ParallelAction(actions.filter { it !is NullAction })
 
 private sealed class MarkerFactory(
     val segmentIndex: Int,
@@ -183,7 +188,7 @@ class TrajectoryActionBuilder private constructor(
                     when (actions.size) {
                         0 -> Pair(NullAction(), msRem)
                         1 -> Pair(actions.first(), msRem)
-                        else -> Pair(ParallelAction(actions), msRem)
+                        else -> Pair(ParallelAction(actions).withoutNulls(), msRem)
                     }
                 }
 

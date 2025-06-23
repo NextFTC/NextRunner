@@ -8,6 +8,7 @@ plugins {
     kotlin("jvm")
 
     `java-library`
+    `java-test-fixtures`
 
     id("org.jetbrains.dokka")
 
