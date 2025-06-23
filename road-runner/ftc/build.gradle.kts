@@ -20,6 +20,7 @@ plugins {
     id("org.jetbrains.dokka")
 
     `maven-publish`
+    id("io.deepmedia.tools.deployer")
 
     id("com.github.node-gradle.node") version "2.2.4"
 }
@@ -100,8 +101,7 @@ android {
     }
 
     publishing {
-        multipleVariants {
-            allVariants()
+        singleVariant("release") {
             withSourcesJar()
             withJavadocJar()
         }

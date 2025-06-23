@@ -13,6 +13,7 @@ plugins {
     id("org.jetbrains.dokka")
 
     `maven-publish`
+    id("io.deepmedia.tools.deployer")
 }
 
 repositories {
