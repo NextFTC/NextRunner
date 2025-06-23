@@ -2,7 +2,7 @@ package com.acmerobotics.roadrunner.ftc
 
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket
 import com.acmerobotics.roadrunner.actions.ActionEx
-import com.acmerobotics.roadrunner.actions.now
+import com.acmerobotics.roadrunner.actions.Actions
 import com.acmerobotics.roadrunner.geometry.PoseVelocity2d
 import com.acmerobotics.roadrunner.geometry.Vector2d
 import com.acmerobotics.roadrunner.trajectories.TimeTurn
@@ -18,11 +18,11 @@ class TurnAction(
     var startTime by Delegates.notNull<Double>()
 
     override fun init(p: TelemetryPacket) {
-        startTime = now()
+        startTime = Actions.now()
     }
 
     override fun loop(p: TelemetryPacket): Boolean {
-        val t = now() - startTime
+        val t = Actions.now() - startTime
 
         if (t > turn.duration) {
             drive.setDrivePowers(PoseVelocity2d(Vector2d(0.0, 0.0), 0.0))
