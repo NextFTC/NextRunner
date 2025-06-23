@@ -1,4 +1,4 @@
-package com.acmerobotics.roadrunner
+package com.acmerobotics.roadrunner.actions
 
 // Ported from https://github.com/janestreet/sexp_pretty/blob/9ed833044944eb9d803be9a0753ccd15990cd387/src/sexp_pretty.ml
 
@@ -25,6 +25,7 @@ package com.acmerobotics.roadrunner
 // SOFTWARE.
 
 import java.io.Writer
+import kotlin.text.iterator
 
 /**
  * S-expression representation.

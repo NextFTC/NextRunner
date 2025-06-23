@@ -5,6 +5,7 @@ kotlin = "2.0.0"
 kotest = "5.9.1"
 android = "8.0.2"
 ftcsdk = "10.0.0"
+mockk = "1.14.4"
 
 [libraries]
 dashboard-core = { module = "com.acmerobotics.dashboard:core", version.ref = "dash" }
@@ -16,6 +17,7 @@ kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test" }
 ftcsdk-common = { module = "org.firstinspires.ftc:FtcCommon", version.ref = "ftcsdk" }
 ftcsdk-robotcore = { module = "org.firstinspires.ftc:RobotCore", version.ref = "ftcsdk" }
 ftcsdk-hardware = { module = "org.firstinspires.ftc:Hardware", version.ref = "ftcsdk" }
+mockk = { module = "io.mockk:mockk", version.ref = "mockk" }
 
 [bundles]
 dashboard = ["dashboard-core", "dashboard-dashboard"]
