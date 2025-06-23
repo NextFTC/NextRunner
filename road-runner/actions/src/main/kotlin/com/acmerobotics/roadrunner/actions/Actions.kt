@@ -1,9 +1,16 @@
-@file:JvmName("Actions")
-
 package com.acmerobotics.roadrunner.actions
 
 import com.acmerobotics.dashboard.canvas.Canvas
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket
+import kotlin.time.ComparableTimeMark
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.nanoseconds
+import kotlin.time.Duration.Companion.seconds
+import kotlin.time.DurationUnit
+import kotlin.time.TimeSource
+import kotlin.time.TimeSource.Monotonic.markNow
+import kotlin.time.toJavaDuration
+import kotlin.time.toKotlinDuration
 
 /**
  * Concurrent task for cooperative multitasking with some FTC dashboard hooks. Actions may have a mutable state.
@@ -20,6 +27,8 @@ fun interface Action {
      * Draws a preview of the action on canvas [fieldOverlay].
      */
     fun preview(fieldOverlay: Canvas) {}
+
+    val requirements: Set<Any> get() = emptySet()
 
     /**
      * Returns a new action that executes this action followed by [a].
@@ -46,6 +55,19 @@ fun interface Action {
      * Returns a new action that waits [dt] seconds before executing this action.
      */
     fun delay(dt: Double) = SleepAction(dt).then(this)
+
+    /**
+     * Returns an interruptible copy of this action, with [onInterruption] occurring on interrupt.
+     */
+    fun interruptible(onInterruption: Action) = object : Interruptible {
+        override fun onInterrupt(): Action = onInterruption
+
+        override fun run(p: TelemetryPacket): Boolean = this@Action.run(p)
+
+        override fun preview(fieldOverlay: Canvas) = this@Action.preview(fieldOverlay)
+    }
+    fun interruptible(onInterruption: InstantFunction) = interruptible(InstantAction(onInterruption))
+    fun interruptible(onInterruption: () -> Action) = interruptible(onInterruption())
 }
 
 open class ActionEx @JvmOverloads constructor(
@@ -72,106 +94,29 @@ open class ActionEx @JvmOverloads constructor(
 }
 
 /**
- * Action combinator that executes the action group [initialActions] in series. Each action is run one after the other.
- * When an action completes, the next one is immediately run. This action completes when the last action completes.
+ * Utility object for action-related functionality.
  */
-data class SequentialAction(
-    val initialActions: List<Action>
-) : Action {
-    private var actions = initialActions.flatMap {
-        if (it is SequentialAction) it.initialActions else listOf(it)
-    }
-
-    constructor(vararg actions: Action) : this(actions.asList())
-
-    override tailrec fun run(p: TelemetryPacket): Boolean {
-        if (actions.isEmpty()) {
-            return false
-        }
-
-        return if (actions.first().run(p)) {
-            true
-        } else {
-            actions = actions.drop(1)
-            run(p)
-        }
-    }
-
-    override fun preview(fieldOverlay: Canvas) {
-        for (a in initialActions) {
-            a.preview(fieldOverlay)
-        }
-    }
+object Actions {
+    /**
+     * Returns the current time in seconds.
+     */
+    @JvmStatic fun now() = System.nanoTime().nanoseconds.toDouble(DurationUnit.SECONDS)
 }
 
 /**
- * Action combinator that executes the action group [initialActions] in parallel. Each call to [run] on this action
- * calls [run] on _every_ live child action in the order provided. Completed actions are removed from the rotation
- * and _do not_ prevent the completion of other actions. This action completes when all of [initialActions] have.
+ * Primitive sleep action that stalls for [dt].
  */
-data class ParallelAction(
-    val initialActions: List<Action>
-) : Action {
-    private var actions = initialActions.flatMap {
-        if (it is ParallelAction) it.initialActions else listOf(it)
+data class SleepAction(val dt: Duration) : ActionEx() {
+    constructor(dt: java.time.Duration) : this(dt.toKotlinDuration())
+    constructor(dt: Double) : this(dt.seconds)
+
+    private lateinit var start: ComparableTimeMark
+
+    override fun init(packet: TelemetryPacket) {
+        start = markNow()
     }
 
-    constructor(vararg actions: Action) : this(actions.asList())
-
-    override fun run(p: TelemetryPacket): Boolean {
-        actions = actions.filter { it.run(p) }
-        return actions.isNotEmpty()
-    }
-
-    override fun preview(fieldOverlay: Canvas) {
-        for (a in initialActions) {
-            a.preview(fieldOverlay)
-        }
-    }
-}
-
-/**
- * Action combinator that executes the action group [actions] in parallel. Each call to [run] on this action
- * calls [run] on _every_ live child action in the order provided. Once one action ends, all other actions are ended.
-*/
-data class RaceAction(
-    val actions: List<Action>
-) : Action {
-
-    constructor(vararg actions: Action) : this(actions.asList())
-
-    override fun run(p: TelemetryPacket): Boolean = !actions.any { !it.run(p) }
-
-    override fun preview(fieldOverlay: Canvas) {
-        for (a in actions) {
-            a.preview(fieldOverlay)
-        }
-    }
-}
-
-/**
- * Returns [System.nanoTime] in seconds.
- */
-fun now() = System.nanoTime() * 1e-9
-
-/**
- * Primitive sleep action that stalls for [dt] seconds.
- */
-data class SleepAction(val dt: Double) : Action {
-    private var beginTs = -1.0
-
-    override fun run(p: TelemetryPacket): Boolean {
-        val t = if (beginTs < 0) {
-            beginTs = now()
-            0.0
-        } else {
-            now() - beginTs
-        }
-
-        return t < dt
-    }
-
-    override fun preview(fieldOverlay: Canvas) {}
+    override fun loop(packet: TelemetryPacket) = (start.elapsedNow() - dt).isPositive()
 }
 fun interface InstantFunction {
     fun run()
@@ -194,3 +139,13 @@ class NullAction : Action {
     override fun run(p: TelemetryPacket) = false
 }
 
+/**
+ * An action that can be interrupted, providing a specific action to execute upon interruption.
+ */
+interface Interruptible : Action {
+
+    /**
+     * Returns the action to execute upon interruption.
+     */
+    fun onInterrupt(): Action
+}
