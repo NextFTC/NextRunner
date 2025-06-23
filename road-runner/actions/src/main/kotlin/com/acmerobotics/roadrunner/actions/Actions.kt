@@ -138,3 +138,14 @@ class InstantAction(val f: InstantFunction) : Action {
 class NullAction : Action {
     override fun run(p: TelemetryPacket) = false
 }
+
+/**
+ * An action that can be interrupted, providing a specific action to execute upon interruption.
+ */
+interface Interruptible : Action {
+
+    /**
+     * Returns the action to execute upon interruption.
+     */
+    fun onInterrupt(): Action
+}
