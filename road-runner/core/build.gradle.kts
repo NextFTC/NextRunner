@@ -13,6 +13,7 @@ plugins {
     id("org.jetbrains.dokka")
 
     `maven-publish`
+    signing
     id("io.deepmedia.tools.deployer")
 }
 
@@ -36,36 +37,8 @@ kotlin {
     }
 }
 
-java {
-    withSourcesJar()
-    withJavadocJar()
-}
-
 tasks.named<Test>("test") {
     useJUnitPlatform()
-}
-
-publishing {
-    publications {
-        create<MavenPublication>("maven") {
-            groupId = "dev.nextftc.nextrunner"
-            artifactId = "core"
-            version = libs.versions.lib.get()
-
-            from(components["java"])
-        }
-    }
-
-    repositories {
-        maven {
-            name = "zharelReleases"
-            url = releasesDir
-        }
-        maven {
-            name = "zharelSnapshots"
-            url = snapshotsDir
-        }
-    }
 }
 
 val dokkaJar = tasks.register<Jar>("dokkaJar") {
