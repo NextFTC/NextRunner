@@ -1,4 +1,4 @@
-rootProject.name = "road-runner"
+rootProject.name = "NextRunner"
 include("core")
 include("actions")
 include("ftc")
