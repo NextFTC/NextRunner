@@ -1,9 +1,5 @@
 import java.net.URI
 
-val releasesDir: URI = File(project.property("zharelReleasesLocation").toString()).toURI()
-val snapshotsDir: URI = File(project.property("zharelSnapshotsLocation").toString()).toURI()
-
-
 plugins {
     kotlin("jvm")
 

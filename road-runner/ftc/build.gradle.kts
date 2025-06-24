@@ -1,15 +1,9 @@
 import com.moowork.gradle.node.yarn.YarnTask
-import java.net.URI
 import kotlin.collections.mapOf
 
 val nodeVersion: String = "18.12.1"
 
-
 val webDir: File = file("${project.projectDir.parent}/web")
-
-val releasesDir: URI = File(project.property("zharelReleasesLocation").toString()).toURI()
-val snapshotsDir: URI = File(project.property("zharelSnapshotsLocation").toString()).toURI()
-
 
 plugins {
     id("com.android.library")
