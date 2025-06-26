@@ -1,3 +1,4 @@
+@file:JvmName("BezierCurves")
 package com.acmerobotics.roadrunner.paths
 
 import com.acmerobotics.roadrunner.geometry.DualNum
@@ -56,7 +57,14 @@ data class BezierCurve1d(
         }
 
         fun fromRRSpline(spline: QuinticSpline1d): BezierCurve1d =
-            BezierCurve1d(spline.coefficients)
+            BezierCurve1d(doubleArrayOf(
+                spline.f,
+                spline.f + 0.2 * spline.e,
+                spline.f + 0.4 * spline.e + 0.1 * spline.d,
+                spline.f + 0.6 * spline.e + 0.3 * spline.d + 0.1 * spline.c,
+                spline.f + 0.8 * spline.e + 0.6 * spline.d + 0.4 * spline.c + 0.2 * spline.b,
+                spline.coefficients.sum()
+                ))
     }
 }
 
@@ -81,9 +89,9 @@ class BezierCurve2dInternal(val x: BezierCurve1d, val y: BezierCurve1d) : Positi
     }
 }
 
-fun generateCurveFromPoints(vararg points: Vector2d) = generateCurveFromPoints(points.toList())
+fun fromPoints(vararg points: Vector2d) = fromPoints(points.toList())
 
-fun generateCurveFromPoints(points: List<Vector2d>) = ArclengthReparamCurve2d(
+fun fromPoints(points: List<Vector2d>) = ArclengthReparamCurve2d(
     BezierCurve2dInternal.fromPoints(points),
     1e-6
 )

@@ -464,7 +464,7 @@ class CurvesTest {
             Vector2d(1.0, 2.0),
             Vector2d(3.0, 1.0)
         )
-        val curve = generateCurveFromPoints(points)
+        val curve = fromPoints(points)
 
         // Test that the curve starts and ends at the correct points
         val startPoint = curve[0.0, 1].value()
@@ -476,7 +476,7 @@ class CurvesTest {
         assertEquals(points.last().y, endPoint.y, 1e-6)
 
         // Test the vararg version
-        val curveVararg = generateCurveFromPoints(
+        val curveVararg = fromPoints(
             Vector2d(0.0, 0.0),
             Vector2d(1.0, 2.0),
             Vector2d(3.0, 1.0)
@@ -490,5 +490,25 @@ class CurvesTest {
         val endPointVararg = curveVararg[curveVararg.length(), 1].value()
         assertEquals(endPoint.x, endPointVararg.x, 1e-6)
         assertEquals(endPoint.y, endPointVararg.y, 1e-6)
+    }
+
+    @Test
+    fun testBezierFromSpline() {
+        val r = Random.Default
+        repeat(100) {
+            val spline = QuinticSpline1d(
+                DualNum(doubleArrayOf(r.nextDouble(), r.nextDouble(), r.nextDouble())),
+                DualNum(doubleArrayOf(r.nextDouble(), r.nextDouble(), r.nextDouble())),
+            )
+            val bezier = BezierCurve1d.fromRRSpline(spline)
+
+            val t = r.nextDouble(0.0, 1.0)
+            val splineValues = spline[t, 4]
+            val bezierValues = bezier[t, 4]
+
+            splineValues.values().zip(bezierValues.values()).forEach {
+                assertEquals(it.first, it.second, 1e-6)
+            }
+        }
     }
 }

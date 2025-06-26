@@ -261,13 +261,28 @@ class TrajectoryActionBuilder private constructor(
     }
     fun afterTime(dt: Double, f: InstantFunction) = afterTime(dt, InstantAction(f))
 
+    /**
+     * Sets the starting tangent of the next path segment.
+     * See [RoadRunner docs](https://rr.brott.dev/docs/v1-0/guides/tangents/).
+     */
     fun setTangent(r: Rotation2d) =
         TrajectoryActionBuilder(this, tb.setTangent(r), n, lastPoseUnmapped, lastPose, lastTangent, ms, cont)
+
+    /**
+     * Sets the starting tangent of the next path segment.
+     * See [RoadRunner docs](https://rr.brott.dev/docs/v1-0/guides/tangents/).
+     */
     fun setTangent(r: Double) = setTangent(Rotation2d.exp(r))
 
+    /**
+     * Reverses the next path segment; actually a call to [setTangent(Math.PI)][setTangent]!
+     */
     fun setReversed(reversed: Boolean) =
         TrajectoryActionBuilder(this, tb.setReversed(reversed), n, lastPoseUnmapped, lastPose, lastTangent, ms, cont)
 
+    /**
+     * Turns [angle] radians.
+     */
     @JvmOverloads
     fun turn(angle: Double, turnConstraintsOverride: TurnConstraints? = null): TrajectoryActionBuilder {
         val b = endTrajectory()
@@ -299,6 +314,9 @@ class TrajectoryActionBuilder private constructor(
             b2.n, lastPoseUnmapped, lastPose, lastTangent, b2.ms, b2.cont
         )
     }
+    /**
+     * Turns to face heading [heading].
+     */
     @JvmOverloads
     fun turnTo(heading: Rotation2d, turnConstraintsOverride: TurnConstraints? = null): TrajectoryActionBuilder {
         val b = endTrajectory()
@@ -308,6 +326,9 @@ class TrajectoryActionBuilder private constructor(
     fun turnTo(heading: Double, turnConstraintsOverride: TurnConstraints? = null) =
         turnTo(Rotation2d.exp(heading), turnConstraintsOverride)
 
+    /**
+     * Adds a line segment that goes forward [ds] in the current direction.
+     */
     @JvmOverloads
     fun forward(
         ds: Double,
@@ -321,6 +342,10 @@ class TrajectoryActionBuilder private constructor(
         n + 1, lastPoseUnmapped, lastPose, lastTangent, ms, cont
     )
 
+    /**
+     * Adds a line segment that goes forward [ds] while maintaining current heading.
+     * Equivalent to [forward].
+     */
     @JvmOverloads
     fun forwardConstantHeading(
         ds: Double,
@@ -334,6 +359,10 @@ class TrajectoryActionBuilder private constructor(
         n + 1, lastPoseUnmapped, lastPose, lastTangent, ms, cont
     )
 
+    /**
+     * Adds a line segment that goes forward [ds],
+     * changing heading from current to [heading] using linear interpolation.
+     */
     @JvmOverloads
     fun forwardLinearHeading(
         ds: Double,
@@ -347,6 +376,11 @@ class TrajectoryActionBuilder private constructor(
         ),
         n + 1, lastPoseUnmapped, lastPose, lastTangent, ms, cont
     )
+
+    /**
+     * Adds a line segment that goes forward [ds],
+     * changing heading from current to [heading] using linear interpolation.
+     */
     @JvmOverloads
     fun forwardLinearHeading(
         ds: Double,
@@ -361,6 +395,10 @@ class TrajectoryActionBuilder private constructor(
         n + 1, lastPoseUnmapped, lastPose, lastTangent, ms, cont
     )
 
+    /**
+     * Adds a line segment that goes forward [ds],
+     * changing heading from current to [heading] using spline interpolation.
+     */
     @JvmOverloads
     fun forwardSplineHeading(
         ds: Double,
@@ -374,6 +412,11 @@ class TrajectoryActionBuilder private constructor(
         ),
         n + 1, lastPoseUnmapped, lastPose, lastTangent, ms, cont
     )
+
+    /**
+     * Adds a line segment that goes forward [ds],
+     * changing heading from current to [heading] using spline interpolation.
+     */
     @JvmOverloads
     fun forwardSplineHeading(
         ds: Double,
@@ -388,6 +431,11 @@ class TrajectoryActionBuilder private constructor(
         n + 1, lastPoseUnmapped, lastPose, lastTangent, ms, cont
     )
 
+    /**
+     * Adds a line segment that goes to x-coordinate [posX].
+     * The robot will continue traveling in the direction it is currently in;
+     * if the robot is perpendicular to the x-axis, this throws an error.
+     */
     @JvmOverloads
     fun lineToX(
         posX: Double,
@@ -401,6 +449,12 @@ class TrajectoryActionBuilder private constructor(
         n + 1, lastPoseUnmapped, lastPose, lastTangent, ms, cont
     )
 
+    /**
+     * Adds a line segment that goes to x-coordinate [posX].
+     * The robot will continue traveling in the direction it is currently in;
+     * if the robot is perpendicular to the x-axis, this throws an error.
+     * Equivalent to [lineToX].
+     */
     @JvmOverloads
     fun lineToXConstantHeading(
         posX: Double,
@@ -414,6 +468,12 @@ class TrajectoryActionBuilder private constructor(
         n + 1, lastPoseUnmapped, lastPose, lastTangent, ms, cont
     )
 
+    /**
+     * Adds a line segment that goes to x-coordinate [posX],
+     * while changing heading from current to [heading] using linear interpolation.
+     * The robot will continue traveling in the direction it is currently in;
+     * if the robot is perpendicular to the x-axis, this throws an error.
+    */
     @JvmOverloads
     fun lineToXLinearHeading(
         posX: Double,
@@ -427,6 +487,13 @@ class TrajectoryActionBuilder private constructor(
         ),
         n + 1, lastPoseUnmapped, lastPose, lastTangent, ms, cont
     )
+
+    /**
+     * Adds a line segment that goes to x-coordinate [posX],
+     * while changing heading from current to [heading] using linear interpolation.
+     * The robot will continue traveling in the direction it is currently in;
+     * if the robot is perpendicular to the x-axis, this throws an error.
+     */
     @JvmOverloads
     fun lineToXLinearHeading(
         posX: Double,
@@ -441,6 +508,12 @@ class TrajectoryActionBuilder private constructor(
         n + 1, lastPoseUnmapped, lastPose, lastTangent, ms, cont
     )
 
+    /**
+     * Adds a line segment that goes to x-coordinate [posX],
+     * while changing heading from current to [heading] using spline interpolation.
+     * The robot will continue traveling in the direction it is currently in;
+     * if the robot is perpendicular to the x-axis, this throws an error.
+     */
     @JvmOverloads
     fun lineToXSplineHeading(
         posX: Double,
@@ -454,6 +527,13 @@ class TrajectoryActionBuilder private constructor(
         ),
         n + 1, lastPoseUnmapped, lastPose, lastTangent, ms, cont
     )
+
+    /**
+     * Adds a line segment that goes to x-coordinate [posX],
+     * while changing heading from current to [heading] using spline interpolation.
+     * The robot will continue traveling in the direction it is currently in;
+     * if the robot is perpendicular to the x-axis, this throws an error.
+     */
     @JvmOverloads
     fun lineToXSplineHeading(
         posX: Double,
@@ -468,6 +548,11 @@ class TrajectoryActionBuilder private constructor(
         n + 1, lastPoseUnmapped, lastPose, lastTangent, ms, cont
     )
 
+    /**
+     * Adds a line segment that goes to y-coordinate [posY].
+     * The robot will continue traveling in the direction it is currently in;
+     * if the robot is perpendicular to the y-axis, this throws an error.
+     */
     @JvmOverloads
     fun lineToY(
         posY: Double,
@@ -481,6 +566,12 @@ class TrajectoryActionBuilder private constructor(
         n + 1, lastPoseUnmapped, lastPose, lastTangent, ms, cont
     )
 
+    /**
+     * Adds a line segment that goes to y-coordinate [posY].
+     * * The robot will continue traveling in the direction it is currently in;
+     * if the robot is perpendicular to the y-axis, this throws an error.
+     * Equivalent to [lineToY].
+     */
     @JvmOverloads
     fun lineToYConstantHeading(
         posY: Double,
@@ -494,6 +585,12 @@ class TrajectoryActionBuilder private constructor(
         n + 1, lastPoseUnmapped, lastPose, lastTangent, ms, cont
     )
 
+    /**
+     * Adds a line segment that goes to y-coordinate [posY],
+     * while changing heading from current to [heading] using linear interpolation.
+     * The robot will continue traveling in the direction it is currently in;
+     * if the robot is perpendicular to the y-axis, this throws an error.
+     */
     @JvmOverloads
     fun lineToYLinearHeading(
         posY: Double,
@@ -507,6 +604,13 @@ class TrajectoryActionBuilder private constructor(
         ),
         n + 1, lastPoseUnmapped, lastPose, lastTangent, ms, cont
     )
+
+    /**
+     * Adds a line segment that goes to y-coordinate [posY],
+     * while changing heading from current to [heading] using linear interpolation.
+     * The robot will continue traveling in the direction it is currently in;
+     * if the robot is perpendicular to the y-axis, this throws an error.
+     */
     @JvmOverloads
     fun lineToYLinearHeading(
         posY: Double,
@@ -521,6 +625,12 @@ class TrajectoryActionBuilder private constructor(
         n + 1, lastPoseUnmapped, lastPose, lastTangent, ms, cont
     )
 
+    /**
+     * Adds a line segment that goes to y-coordinate [posY],
+     * while changing heading from current to [heading] using spline interpolation.
+     * The robot will continue traveling in the direction it is currently in;
+     * if the robot is perpendicular to the y-axis, this throws an error.
+     */
     @JvmOverloads
     fun lineToYSplineHeading(
         posY: Double,
@@ -534,6 +644,13 @@ class TrajectoryActionBuilder private constructor(
         ),
         n + 1, lastPoseUnmapped, lastPose, lastTangent, ms, cont
     )
+
+    /**
+     * Adds a line segment that goes to y-coordinate [posY],
+     * while changing heading from current to [heading] using spline interpolation.
+     * The robot will continue traveling in the direction it is currently in;
+     * if the robot is perpendicular to the y-axis, this throws an error.
+     */
     @JvmOverloads
     fun lineToYSplineHeading(
         posY: Double,
@@ -548,6 +665,9 @@ class TrajectoryActionBuilder private constructor(
         n + 1, lastPoseUnmapped, lastPose, lastTangent, ms, cont
     )
 
+    /**
+     * Adds a line segment that goes to [pos].
+     */
     @JvmOverloads
     fun strafeTo(
         pos: Vector2d,
@@ -561,6 +681,10 @@ class TrajectoryActionBuilder private constructor(
         n + 1, lastPoseUnmapped, lastPose, lastTangent, ms, cont
     )
 
+    /**
+     * Adds a line segment that goes to [pos].
+     * Equivalent to [strafeTo].
+     */
     @JvmOverloads
     fun strafeToConstantHeading(
         pos: Vector2d,
@@ -574,6 +698,10 @@ class TrajectoryActionBuilder private constructor(
         n + 1, lastPoseUnmapped, lastPose, lastTangent, ms, cont
     )
 
+    /**
+     * Adds a line segment that goes to [pos],
+     * changing heading from current to [heading] using linear interpolation.
+     */
     @JvmOverloads
     fun strafeToLinearHeading(
         pos: Vector2d,
@@ -587,6 +715,11 @@ class TrajectoryActionBuilder private constructor(
         ),
         n + 1, lastPoseUnmapped, lastPose, lastTangent, ms, cont
     )
+
+    /**
+     * Adds a line segment that goes to [pos],
+     * changing heading from current to [heading] using linear interpolation.
+     */
     @JvmOverloads
     fun strafeToLinearHeading(
         pos: Vector2d,
@@ -601,6 +734,10 @@ class TrajectoryActionBuilder private constructor(
         n + 1, lastPoseUnmapped, lastPose, lastTangent, ms, cont
     )
 
+    /**
+     * Adds a line segment that goes to [pos],
+     * changing heading from current to [heading] using spline interpolation.
+     */
     @JvmOverloads
     fun strafeToSplineHeading(
         pos: Vector2d,
@@ -614,6 +751,11 @@ class TrajectoryActionBuilder private constructor(
         ),
         n + 1, lastPoseUnmapped, lastPose, lastTangent, ms, cont
     )
+
+    /**
+     * Adds a line segment that goes to [pos],
+     * changing heading from current to [heading] using spline interpolation.
+     */
     @JvmOverloads
     fun strafeToSplineHeading(
         pos: Vector2d,
@@ -628,6 +770,12 @@ class TrajectoryActionBuilder private constructor(
         n + 1, lastPoseUnmapped, lastPose, lastTangent, ms, cont
     )
 
+    /**
+     * Adds a curved path segment using quintic Hermite splines
+     * that goes to [pos] with an end tangent of [tangent].
+     * The shape of the curve is based off of the starting position and tangent
+     * as well as the ending [pos] and [tangent].
+     */
     @JvmOverloads
     fun splineTo(
         pos: Vector2d,
@@ -641,6 +789,13 @@ class TrajectoryActionBuilder private constructor(
         ),
         n + 1, lastPoseUnmapped, lastPose, lastTangent, ms, cont
     )
+
+    /**
+     * Adds a curved path segment using quintic Hermite splines
+     * that goes to [pos] with an end tangent of [tangent].
+     * The shape of the curve is based off of the starting position and tangent
+     * as well as the ending [pos] and [tangent].
+     */
     @JvmOverloads
     fun splineTo(
         pos: Vector2d,
@@ -655,6 +810,14 @@ class TrajectoryActionBuilder private constructor(
         n + 1, lastPoseUnmapped, lastPose, lastTangent, ms, cont
     )
 
+    /**
+     * Adds a curved path segment using quintic Hermite splines
+     * that goes to [pos] with an end tangent of [tangent].
+     * The shape of the curve is based off of the starting position and tangent
+     * as well as the ending [pos] and [tangent].
+     * The robot's heading remains constant
+     * as opposed to matching the tangent.
+     */
     @JvmOverloads
     fun splineToConstantHeading(
         pos: Vector2d,
@@ -668,6 +831,15 @@ class TrajectoryActionBuilder private constructor(
         ),
         n + 1, lastPoseUnmapped, lastPose, lastTangent, ms, cont
     )
+
+    /**
+     * Adds a curved path segment using quintic Hermite splines
+     * that goes to [pos] with an end tangent of [tangent].
+     * The shape of the curve is based off of the starting position and tangent
+     * as well as the ending [pos] and [tangent].
+     * The robot's heading remains constant
+     * as opposed to matching the tangent.
+     */
     @JvmOverloads
     fun splineToConstantHeading(
         pos: Vector2d,
@@ -682,6 +854,14 @@ class TrajectoryActionBuilder private constructor(
         n + 1, lastPoseUnmapped, lastPose, lastTangent, ms, cont
     )
 
+    /**
+     * Adds a curved path segment using quintic Hermite splines
+     * that goes to [pose.position][pose] with an end tangent of [tangent].
+     * The shape of the curve is based off of the starting position and tangent
+     * as well as the ending position and [tangent].
+     * The robot's heading linearly interpolates from its current heading
+     * to [pose.heading][pose].
+     */
     @JvmOverloads
     fun splineToLinearHeading(
         pose: Pose2d,
@@ -695,6 +875,15 @@ class TrajectoryActionBuilder private constructor(
         ),
         n + 1, lastPoseUnmapped, lastPose, lastTangent, ms, cont
     )
+
+    /**
+     * Adds a curved path segment using quintic Hermite splines
+     * that goes to [pose.position][pose] with an end tangent of [tangent].
+     * The shape of the curve is based off of the starting position and tangent
+     * as well as the ending position and [tangent].
+     * The robot's heading linearly interpolates from its current heading
+     * to [pose.heading][pose].
+     */
     @JvmOverloads
     fun splineToLinearHeading(
         pose: Pose2d,
@@ -709,6 +898,14 @@ class TrajectoryActionBuilder private constructor(
         n + 1, lastPoseUnmapped, lastPose, lastTangent, ms, cont
     )
 
+    /**
+     * Adds a curved path segment using quintic Hermite splines
+     * that goes to [pose.position][pose] with an end tangent of [tangent].
+     * The shape of the curve is based off of the starting position and tangent
+     * as well as the ending position and [tangent].
+     * The robot's heading interpolates from its current heading
+     * to [pose.heading][pose] using spline interpolation.
+     */
     @JvmOverloads
     fun splineToSplineHeading(
         pose: Pose2d,
@@ -722,6 +919,15 @@ class TrajectoryActionBuilder private constructor(
         ),
         n + 1, lastPoseUnmapped, lastPose, lastTangent, ms, cont
     )
+
+    /**
+     * Adds a curved path segment using quintic Hermite splines
+     * that goes to [pose.position][pose] with an end tangent of [tangent].
+     * The shape of the curve is based off of the starting position and tangent
+     * as well as the ending position and [tangent].
+     * The robot's heading interpolates from its current heading
+     * to [pose.heading][pose] using spline interpolation.
+     */
     @JvmOverloads
     fun splineToSplineHeading(
         pose: Pose2d,
@@ -750,6 +956,9 @@ class TrajectoryActionBuilder private constructor(
         ).setTangent(it.lastTangent)
     }
 
+    /**
+     * Returns an Action object that follows the full sequence.
+     */
     fun build(): Action {
         return endTrajectory().cont(NullAction())
     }

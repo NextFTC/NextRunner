@@ -9,8 +9,11 @@ import com.acmerobotics.roadrunner.geometry.Pose2d
 import com.acmerobotics.roadrunner.geometry.PoseVelocity2d
 import com.acmerobotics.roadrunner.geometry.PoseVelocity2dDual
 import com.acmerobotics.roadrunner.geometry.Time
+import com.acmerobotics.roadrunner.paths.PosePath
 import com.acmerobotics.roadrunner.profiles.AccelConstraint
 import com.acmerobotics.roadrunner.profiles.VelConstraint
+import com.acmerobotics.roadrunner.profiles.forwardProfile
+import com.acmerobotics.roadrunner.trajectories.DisplacementTrajectory
 import com.acmerobotics.roadrunner.trajectories.TrajectoryBuilder
 import com.acmerobotics.roadrunner.trajectories.TurnConstraints
 
@@ -37,6 +40,25 @@ interface Drive {
     fun updatePoseEstimate(): PoseVelocity2d {
         return localizer.update()
     }
+
+    /**
+     * Creates and returns a time-optimal profile for the given path.
+     */
+    fun createProfile(path: PosePath) = forwardProfile(
+            followerParams.profileParams,
+            path,
+            0.0,
+            followerParams.velConstraint,
+            followerParams.accelConstraint,
+        )
+
+    /**
+     * Creates and returns a time-optimal profile for the given path.
+     */
+    fun createTrajectory(path: PosePath) = DisplacementTrajectory(
+        path,
+        createProfile(path)
+    )
 }
 
 interface Localizer {
