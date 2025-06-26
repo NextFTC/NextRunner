@@ -6,6 +6,8 @@ import com.acmerobotics.roadrunner.geometry.Arclength
 import com.acmerobotics.roadrunner.geometry.DualNum
 import com.acmerobotics.roadrunner.geometry.IntegralScanResult
 import com.acmerobotics.roadrunner.geometry.Internal
+import com.acmerobotics.roadrunner.geometry.Rotation2d
+import com.acmerobotics.roadrunner.geometry.Rotation2dDual
 import com.acmerobotics.roadrunner.geometry.Vector2d
 import com.acmerobotics.roadrunner.geometry.Vector2dDual
 import com.acmerobotics.roadrunner.geometry.clamp
@@ -38,7 +40,55 @@ interface PositionPath<Param> {
         val ds = (query - guess.value()) dot guess.drop(1).value()
         clamp(s + ds, 0.0, this.length())
     }
+
+    /**
+     * Creates a PosePath using this path for position and its tangent for heading.
+     */
+    fun withTangentHeading() = TangentPath(this.wrtArclength(), 0.0)
+
+    /**
+     * Creates a PosePath using this path for position
+     * and a linear interpolation between [startHeading] and [endHeading] for heading.
+     */
+    fun withLinearHeading(startHeading: Rotation2d, endHeading: Rotation2d) = this.wrtArclength().let {
+        HeadingPosePath(
+            it,
+            LinearHeadingPath(startHeading, endHeading - startHeading, it.length())
+            )
+    }
+
+    /**
+     * Creates a PosePath using this path for position
+     * and a linear interpolation between [startHeading] and [endHeading] for heading.
+     */
+    fun withLinearHeading(startHeading: Double, endHeading: Double) =
+        withLinearHeading(startHeading.toRotation(), endHeading.toRotation())
+
+    /**
+     * Creates a PosePath using this path for position
+     * and a linear interpolation between [startHeading] and [endHeading] for heading.
+     */
+    fun withSplineHeading(startHeading: Rotation2d, endHeading: Rotation2d) = this.wrtArclength().let {
+        HeadingPosePath(
+            it,
+            SplineHeadingPath(
+                startHeading.dual(),
+                (endHeading-startHeading).toRotation().dual(),
+                it.length()
+            )
+        )
+    }
+
+    /**
+     * Creates a PosePath using this path for position
+     * and a linear interpolation between [startHeading] and [endHeading] for heading.
+     */
+    fun withSplineHeading(startHeading: Double, endHeading: Double) =
+        withSplineHeading(startHeading.toRotation(), endHeading.toRotation())
 }
+
+fun Double.toRotation() = Rotation2d.exp(this)
+fun Rotation2d.dual() = Rotation2dDual.Companion.constant<Arclength>(this, 1)
 
 /**
  * Project position [query] onto position path [path] starting with initial guess [init].
@@ -134,6 +184,12 @@ data class ArclengthReparamCurve2d(
     }
 
     override fun length() = length
+}
+
+private fun <Param> PositionPath<Param>.wrtArclength(): PositionPath<Arclength> = when(this) {
+    is Line -> this
+    is ArclengthReparamCurve2d -> this
+    else -> ArclengthReparamCurve2d(this, 1e-6)
 }
 
 data class CompositePositionPath<Param> @JvmOverloads constructor(
