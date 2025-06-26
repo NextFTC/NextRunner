@@ -464,7 +464,7 @@ class CurvesTest {
             Vector2d(1.0, 2.0),
             Vector2d(3.0, 1.0)
         )
-        val curve = generateCurveFromPoints(points)
+        val curve = fromPoints(points)
 
         // Test that the curve starts and ends at the correct points
         val startPoint = curve[0.0, 1].value()
@@ -476,7 +476,7 @@ class CurvesTest {
         assertEquals(points.last().y, endPoint.y, 1e-6)
 
         // Test the vararg version
-        val curveVararg = generateCurveFromPoints(
+        val curveVararg = fromPoints(
             Vector2d(0.0, 0.0),
             Vector2d(1.0, 2.0),
             Vector2d(3.0, 1.0)
