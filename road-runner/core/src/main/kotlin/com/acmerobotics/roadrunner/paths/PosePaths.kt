@@ -30,6 +30,8 @@ interface PosePath {
     }
 
     fun map(map: PoseMap) = MappedPosePath(this, map)
+
+    operator fun plus(other: PosePath) = CompositePosePath(listOf(this, other))
 }
 
 data class TangentPath(
@@ -64,7 +66,7 @@ data class HeadingPosePath(
     override fun length() = posPath.length()
 }
 
-data class CompositePosePath(
+data class CompositePosePath @JvmOverloads constructor(
     @JvmField
     val paths: List<PosePath>,
     @JvmField
@@ -75,8 +77,6 @@ data class CompositePosePath(
             "paths.size (${paths.size}) + 1 != offsets.size (${offsets.size})"
         }
     }
-
-    constructor(paths: List<CompositePosePath>) : this(paths.flatMap { it.paths })
 
     @JvmField
     val length = offsets.last()
@@ -96,6 +96,11 @@ data class CompositePosePath(
     }
 
     override fun length() = length
+
+    override fun plus(other: PosePath) = when (other) {
+        is CompositePosePath -> CompositePosePath(this.paths + other.paths)
+        else -> CompositePosePath(paths + other)
+    }
 }
 
 class OffsetPosePath(
