@@ -22,7 +22,7 @@ dependencies {
 
     api(libs.dashboard.core)
 
-    testImplementation("org.jetbrains.kotlin:kotlin-test")
+    testImplementation(libs.jetbrains.kotlin.test)
 
     testImplementation(testFixtures(project(":core")))
 }

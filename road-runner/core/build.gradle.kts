@@ -20,9 +20,9 @@ dependencies {
 
     testFixturesApi(libs.bundles.kotest)
 
-    testImplementation("org.knowm.xchart:xchart:3.8.8")
+    testImplementation(libs.xchart)
 
-    dokkaHtmlPlugin("org.jetbrains.dokka:mathjax-plugin:1.9.10")
+    dokkaHtmlPlugin(libs.mathjax.plugin)
 }
 
 kotlin {

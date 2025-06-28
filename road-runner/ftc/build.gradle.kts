@@ -112,8 +112,8 @@ dependencies {
 
     implementation(libs.bundles.ftcsdk)
 
-    implementation("com.fasterxml.jackson.core:jackson-databind:2.12.7")
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.8.0")
+    implementation(libs.jackson.databind)
+    implementation(libs.kotlinx.serialization.json)
 
     testImplementation(kotlin("test"))
     testImplementation(libs.mockk)
