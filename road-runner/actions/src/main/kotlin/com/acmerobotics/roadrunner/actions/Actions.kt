@@ -38,21 +38,48 @@ fun interface Action {
      * Returns a new action that executes this action followed by [a].
      */
     fun then(a: Action) = SequentialAction(this, a)
+
+    /**
+     * Returns a new action that executes this action followed by [f].
+     */
     fun then(f: InstantFunction) = SequentialAction(this, InstantAction(f))
+
+    /**
+     * Returns a new action that executes this action followed by [a].
+     */
     fun then(a: () -> Action) = SequentialAction(this, a())
 
     /**
      * Returns a new action that executes this action in parallel with [a].
      */
     fun with(a: Action) = ParallelAction(this, a)
+
+    /**
+     * Returns a new action that executes this action in parallel with [f].
+     */
     fun with(f: InstantFunction) = ParallelAction(this, InstantAction(f))
-    fun with(a: () -> Action) = ParallelAction(this, a())
 
     /**
      * Returns a new action that executes this action in parallel with [a].
      */
+    fun with(a: () -> Action) = ParallelAction(this, a())
+
+    /**
+     * Returns a new action that executes this action in parallel with [a],
+     * but stops both actions when one finishes first.
+     */
     fun race(a: Action) = RaceAction(this, a)
+
+    /**
+     * Returns a new action that executes this action in parallel with [f],
+     * but stops both actions when one finishes first.
+     */
     fun race(f: InstantFunction) = RaceAction(this, InstantAction(f))
+
+    /**
+     * Returns a new action that executes this action in parallel with [a],
+     * but stops both actions when one finishes first.
+     */
     fun race(a: () -> Action) = RaceAction(this, a())
 
     /**
@@ -70,8 +97,30 @@ fun interface Action {
 
         override fun preview(fieldOverlay: Canvas) = this@Action.preview(fieldOverlay)
     }
+
+    /**
+     * Returns an interruptible copy of this action, with [onInterruption] occurring on interrupt.
+     */
     fun interruptible(onInterruption: InstantFunction) = interruptible(InstantAction(onInterruption))
+
+    /**
+     * Returns an interruptible copy of this action, with [onInterruption] occurring on interrupt.
+     */
     fun interruptible(onInterruption: () -> Action) = interruptible(onInterruption())
+
+    /**
+     * Returns a copy of this with requirements [reqs].
+     */
+    fun withRequirements(reqs: Set<Any>) = object : Action {
+        override fun run(p: TelemetryPacket) = this@Action.run(p)
+        override fun preview(fieldOverlay: Canvas) = this@Action.preview(fieldOverlay)
+        override val requirements = reqs
+    }
+
+    /**
+     * Returns a copy of this with requirements [reqs].
+     */
+    fun withRequirements(vararg reqs: Any) = withRequirements(reqs.toSet())
 }
 
 open class ActionEx @JvmOverloads constructor(
