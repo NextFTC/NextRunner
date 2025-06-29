@@ -47,6 +47,21 @@ interface PositionPath<Param> {
     fun withTangentHeading() = TangentPath(this.wrtArclength(), 0.0)
 
     /**
+     * Creates a PosePath using this path for position and constant [heading].
+     */
+    fun withConstantHeading(heading: Rotation2d) = this.wrtArclength().let {
+        HeadingPosePath(
+            it,
+            ConstantHeadingPath(heading, it.length())
+        )
+    }
+
+    /**
+     * Creates a PosePath using this path for position and constant [heading].
+     */
+    fun withConstantHeading(heading: Double) = withConstantHeading(heading.toRotation())
+
+    /**
      * Creates a PosePath using this path for position
      * and a linear interpolation between [startHeading] and [endHeading] for heading.
      */
