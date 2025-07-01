@@ -55,7 +55,7 @@ deployer {
         license("GNU General Public License, version 3", "https://www.gnu.org/licenses/gpl-3.0.html")
 
         developer("Zachary Harel", "ftc@zharel.me", url = "https://github.com/zachwaffle4")
-        developer("Ryan Brott", "ftc@zharel.me", url = "https://github.com/zachwaffle4")
+        developer("Ryan Brott", "rcbrott@gmail.com", url = "https://github.com/rbrott")
     }
 
     signing {
