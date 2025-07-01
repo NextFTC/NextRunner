@@ -2,20 +2,18 @@ package com.acmerobotics.roadrunner.actions
 
 import com.acmerobotics.dashboard.canvas.Canvas
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket
+import java.util.function.Consumer
 import kotlin.time.ComparableTimeMark
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.nanoseconds
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.DurationUnit
-import kotlin.time.TimeSource
 import kotlin.time.TimeSource.Monotonic.markNow
-import kotlin.time.toJavaDuration
 import kotlin.time.toKotlinDuration
 
 /**
  * Concurrent task for cooperative multitasking with some FTC dashboard hooks. Actions may have a mutable state.
  */
-@JvmDefaultWithoutCompatibility
 fun interface Action {
     /**
      * Runs a single uninterruptible block. Returns true if the action should run again and false if it has completed.
@@ -109,6 +107,20 @@ fun interface Action {
     fun interruptible(onInterruption: () -> Action) = interruptible(onInterruption())
 
     /**
+     * Returns a copy of this with dashboard preview [preview].
+     */
+    fun withPreview(preview: (Canvas) -> Unit) = object : Action {
+        override fun run(p: TelemetryPacket) = this@Action.run(p)
+        override fun preview(fieldOverlay: Canvas) = preview(fieldOverlay)
+        override val requirements = this@Action.requirements
+    }
+
+    /**
+     * Returns a copy of this with dashboard preview [preview].
+     */
+    fun withPreview(preview: Consumer<Canvas>) = withPreview(preview::accept)
+
+    /**
      * Returns a copy of this with requirements [reqs].
      */
     fun withRequirements(reqs: Set<Any>) = object : Action {
@@ -139,7 +151,7 @@ open class ActionEx @JvmOverloads constructor(
         { end(it).let { false } }
     )
 
-    final override fun run(packet: TelemetryPacket) = sequential.run(packet)
+    final override fun run(p: TelemetryPacket) = sequential.run(p)
 
     fun withInit(initBlock: (TelemetryPacket) -> Unit) = ActionEx(initBlock, loopBlock, endBlock)
     fun withLoop(loopBlock: (TelemetryPacket) -> Boolean) = ActionEx(initBlock, loopBlock, endBlock)
