@@ -4,6 +4,7 @@ import com.qualcomm.hardware.lynx.LynxModule
 import com.qualcomm.robotcore.hardware.DcMotorEx
 import com.qualcomm.robotcore.hardware.DcMotorSimple
 import com.qualcomm.robotcore.util.ElapsedTime
+import kotlin.math.absoluteValue
 import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.round
@@ -140,4 +141,18 @@ class LynxQuadratureEncoderGroup(
             module.bulkData
         }
     }
+}
+
+/**
+ * An encoder that wraps its position to [0, cpr).
+ * Useful for swerve pod rotations.
+ */
+class WrappingEncoder(val encoder: Encoder, val cpr: Int) : Encoder {
+    override var direction: DcMotorSimple.Direction by encoder::direction
+
+    override fun getPositionAndVelocity(): PositionVelocityPair {
+        val p = encoder.getPositionAndVelocity()
+        return PositionVelocityPair(p.position.absoluteValue % cpr, p.velocity, p.rawPosition, p.rawVelocity)
+    }
+
 }
