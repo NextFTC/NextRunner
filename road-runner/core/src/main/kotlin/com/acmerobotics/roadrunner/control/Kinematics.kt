@@ -4,7 +4,6 @@ import com.acmerobotics.roadrunner.geometry.Arclength
 import com.acmerobotics.roadrunner.geometry.DualNum
 import com.acmerobotics.roadrunner.geometry.Pose2dDual
 import com.acmerobotics.roadrunner.geometry.PoseVelocity2dDual
-import com.acmerobotics.roadrunner.geometry.Time
 import com.acmerobotics.roadrunner.geometry.Twist2dDual
 import com.acmerobotics.roadrunner.geometry.Vector2d
 import com.acmerobotics.roadrunner.geometry.Vector2dDual
@@ -13,6 +12,8 @@ import com.acmerobotics.roadrunner.paths.PosePath
 import com.acmerobotics.roadrunner.profiles.VelConstraint
 import kotlin.collections.forEach
 import kotlin.math.abs
+import kotlin.math.cos
+import kotlin.math.sin
 
 interface WheelIncrements<Param>
 
@@ -156,12 +157,16 @@ data class TankKinematics(@JvmField val trackWidth: Double) :
     }
 }
 
-data class SwerveModuleDelta<Param>(
+/**
+ * @param wheelDelta change in wheel position
+ * @param angle absolute angle
+ */
+data class SwerveModuleIncrements<Param>(
     @JvmField val wheelDelta: DualNum<Param>,
-    @JvmField val angleDelta: DualNum<Param>
+    @JvmField val angle: Double
 ) {
-    constructor(wheelDelta: Double, angleDelta: Double) :
-            this(DualNum.constant(wheelDelta, 3), DualNum.constant(angleDelta, 3))
+    constructor(wheelDelta: Double, angle: Double) :
+            this(DualNum.constant(wheelDelta, 3), angle)
 }
 
 data class SwerveModuleState<Param>(
@@ -183,7 +188,7 @@ data class SwerveKinematics(
 
     data class SwerveWheelIncrements<Param>(
         @JvmField
-        val deltas: List<SwerveModuleDelta<Param>>
+        val deltas: List<SwerveModuleIncrements<Param>>
     ) : WheelIncrements<Param>
 
     override fun <Param> forward(w: SwerveWheelIncrements<*>): Twist2dDual<Param> {
@@ -198,8 +203,8 @@ data class SwerveKinematics(
        modules.zip(w.deltas) { module, delta ->
             // Convert wheel delta and steering angle to x and y components
             // Using the steering angle to determine the direction of motion
-            val cosAngle = delta.angleDelta.cos()
-            val sinAngle = delta.angleDelta.sin()
+            val cosAngle = cos(delta.angle)
+            val sinAngle = sin(delta.angle)
 
             // Calculate the module's contribution to linear motion
             val moduleX = delta.wheelDelta * cosAngle
