@@ -9,6 +9,7 @@ kxserialization = "1.8.0"
 mathjaxPlugin = "2.0.00"
 mockk = "1.14.4"
 xchart = "3.8.8"
+ejml = "0.44.0"
 
 [libraries]
 dashboard-core = { module = "com.acmerobotics.dashboard:core", version.ref = "dash" }
@@ -26,6 +27,7 @@ kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serializa
 mathjax-plugin = { module = "org.jetbrains.dokka:mathjax-plugin", version.ref = "mathjaxPlugin" }
 mockk = { module = "io.mockk:mockk", version.ref = "mockk" }
 xchart = { module = "org.knowm.xchart:xchart", version.ref = "xchart" }
+ejml = { module = "org.ejml:ejml-simple", version.ref = "ejml" }
 
 [bundles]
 dashboard = ["dashboard-core", "dashboard-dashboard"]

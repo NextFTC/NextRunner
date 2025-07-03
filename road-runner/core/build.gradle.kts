@@ -16,6 +16,8 @@ repositories {
 }
 
 dependencies {
+    implementation(libs.ejml)
+
     testImplementation(libs.kotlin.test)
 
     testFixturesApi(libs.bundles.kotest)
