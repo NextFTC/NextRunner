@@ -20,6 +20,7 @@ dependencies {
 
     testImplementation(libs.kotlin.test)
 
+    testFixturesApi(libs.ejml)
     testFixturesApi(libs.bundles.kotest)
 
     testImplementation(libs.xchart)

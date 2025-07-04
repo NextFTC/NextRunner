@@ -1,6 +1,8 @@
 package com.acmerobotics.roadrunner.geometry
 
+import org.ejml.dense.row.decomposition.lu.LUDecompositionAlt_DDRM
 import org.ejml.simple.SimpleMatrix
+import kotlin.math.pow
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
 
@@ -15,6 +17,10 @@ enum class TYPE_1D {
     ROW,
 }
 
+/**
+ * Represents a matrix of doubles.
+ * Internally represented as a SimpleMatrix from EJML.
+ */
 class Matrix(data: Array<DoubleArray>) {
     constructor(data: DoubleArray, type1d: TYPE_1D = TYPE_1D.ROW) : this(type1d.let {
         when (it) {
@@ -67,7 +73,6 @@ class DiagonalElement<M>(val matrix: Matrix, val index: Int) : ReadWriteProperty
     ) {
         matrix[index, index] = value
     }
-
 }
 
 private fun Array<DoubleArray>.transpose(): Array<DoubleArray> {
@@ -80,4 +85,22 @@ private fun Array<DoubleArray>.transpose(): Array<DoubleArray> {
         }
     }
     return ret
+}
+
+/**
+ * Creates a cost matrix from the given tolerances using Bryson's rule.
+ */
+fun makeBrysonMatrix(vararg tolerances: Double) = Matrix(makeBrysonMatrix(tolerances))
+
+internal fun makeBrysonMatrix(tolerances: DoubleArray) = SimpleMatrix.diag(*tolerances.map {
+    if (it.isFinite()) {
+        1.0 / it.pow(2)
+    } else {
+        0.0
+    }
+}.toDoubleArray())
+
+internal fun SimpleMatrix.lu() = LUDecompositionAlt_DDRM().let {
+    it.decompose(this.ddrm)
+    SimpleMatrix.wrap(it.lu)
 }

@@ -2,7 +2,6 @@
 
 package com.acmerobotics.roadrunner.control
 
-import com.acmerobotics.roadrunner.geometry.DiagonalElement
 import com.acmerobotics.roadrunner.geometry.DualNum
 import com.acmerobotics.roadrunner.geometry.Matrix
 import com.acmerobotics.roadrunner.geometry.Pose2d
@@ -15,65 +14,12 @@ import com.acmerobotics.roadrunner.geometry.Twist2d
 import com.acmerobotics.roadrunner.geometry.Twist2dDual
 import com.acmerobotics.roadrunner.geometry.Vector2d
 import com.acmerobotics.roadrunner.geometry.Vector2dDual
+import com.acmerobotics.roadrunner.geometry.makeBrysonMatrix
 import com.acmerobotics.roadrunner.geometry.times
 import com.acmerobotics.roadrunner.geometry.unaryMinus
-import org.ejml.dense.row.decomposition.lu.LUDecompositionAlt_DDRM
 import org.ejml.simple.SimpleMatrix
 import kotlin.math.pow
 
-/**
- * Parameters class for linear quadratic regulator (LQR) control
- * for use with holonomic robots.
- *
- * This constructor assumes a kinematic acceleration model where the state error `x` is
- * `[xError, yError, headingError, vxError, vyError, omegaError]` and the control input `u`
- * is the desired robot acceleration `[ax, ay, alpha]`.
- * NextRunner converts the acceleration command to a velocity+acceleration command
- * when the LQR is used as a [RobotPosVelController]
- *
- * The system dynamics are approximated as:
- * `dx_dot = vx`
- * `dy_dot = vy`
- * `dtheta_dot = omega`
- * `dvx_dot = ax`
- * `dvy_dot = ay`
- * `domega_dot = alpha`
- *
- * @property qX The penalty for error in the x-position. Higher values prioritize correcting x-error.
- * @property qY The penalty for error in the y-position. Higher values prioritize correcting y-error.
- * @property qHeading The penalty for error in the heading. Higher values prioritize correcting heading error.
- * @property qVx The penalty for error in the x-velocity. Higher values prioritize correcting x-velocity error.
- * @property qVy The penalty for error in the y-velocity. Higher values prioritize correcting y-velocity error.
- * @property qOmega The penalty for error in the angular velocity. Higher values prioritize correcting angular velocity error.
- * @property rAx The penalty for using linear acceleration in the x-direction. Higher values prioritize using less `ax`.
- * @property rAy The penalty for using linear acceleration in the y-direction. Higher values prioritize using less `ay`.
- * @property rAlpha The penalty for using angular acceleration. Higher values prioritize using less `alpha`.
- */
-class LQRParameters(
-    qX: Double, qY: Double, qHeading: Double,
-    qVx: Double, qVy: Double, qOmega: Double,
-    rAx: Double, rAy: Double, rAlpha: Double,
-) {
-    init {
-        require(qX >= 0 && qY >= 0 && qHeading >= 0) { "Position state costs (Q) must be non-negative" }
-        require(qVx >= 0 && qVy >= 0 && qOmega >= 0) { "Velocity state costs (Q) must be non-negative" }
-        require(rAx > 0 && rAy > 0 && rAlpha > 0) { "Control costs (R) must be positive" }
-    }
-
-    val Q = Matrix(SimpleMatrix.diag(qX, qY, qHeading, qVx, qVy, qOmega))
-    val R = Matrix(SimpleMatrix.diag(rAx, rAy, rAlpha))
-
-    var qX by DiagonalElement(Q, 0)
-    var qY by DiagonalElement(Q, 1)
-    var qHeading by DiagonalElement(Q, 2)
-    var qVx by DiagonalElement(Q, 3)
-    var qVy by DiagonalElement(Q, 4)
-    var qOmega by DiagonalElement(Q, 5)
-
-    var rAx by DiagonalElement(R, 0)
-    var rAy by DiagonalElement(R, 1)
-    var rAlpha by DiagonalElement(R, 2)
-}
 
 /**
  * A Linear Quadratic Regulator (LQR) for controlling a system modeled by state-space equations.
@@ -111,15 +57,23 @@ class LQRController : RobotPosVelController{
      * `dvy_dot = ay`
      * `domega_dot = alpha`
      *
-     * @param params The parameters for the LQR controller; see [LQRParameters] constructor.
+     * @param qX The maximum error in the x-position.
+     * @param qY The maximum error in the y-position.
+     * @param qHeading The maximum error in the heading.
+     * @param qVx The maximum error in the x-velocity.
+     * @param qVy The maximum error in the y-velocity.
+     * @param qOmega The maximum error in the angular velocity.
+     * @param rAx The maximum linear acceleration in the x-direction.
+     * @param rAy The maximum using linear acceleration in the y-direction.
+     * @param rAlpha The maximum using angular acceleration.
      * @param dt The discrete time step (control loop period) in seconds.
      */
     constructor(
-        params: LQRParameters,
+        qX: Double, qY: Double, qHeading: Double,
+        qVx: Double, qVy: Double, qOmega: Double,
+        rAx: Double, rAy: Double, rAlpha: Double,
         dt: Double = 0.0303
     ) {
-        require(dt > 0) { "Time step (dt) must be positive" }
-
         val A_cont = SimpleMatrix(6, 6)
         A_cont.set(0, 3, 1.0) // d(delta_x)/dt = delta_vx
         A_cont.set(1, 4, 1.0) // d(delta_y)/dt = delta_vy
@@ -133,45 +87,14 @@ class LQRController : RobotPosVelController{
         // discretize continuous A and B matrices for DARE
         val (Ad, Bd) = discretizeSystem(A_cont, B_cont, dt)
 
-        this.k = solveDARE(Ad, Bd, params.Q.simple, params.R.simple)
+        val Q = makeBrysonMatrix(qX, qY, qHeading, qVx, qVy, qOmega)
+        val R = makeBrysonMatrix(rAx, rAy, rAlpha)
+
+        val (_, K) = computeLQRGain(Ad, Bd, Q.simple, R.simple)
+
+        this.k = K
         this.dt = dt
     }
-
-    /**
-     * Constructor for the common holonomic robot control use case.
-     *
-     * This constructor assumes a kinematic acceleration model where the state error `x` is
-     * `[xError, yError, headingError, vxError, vyError, omegaError]` and the control input `u`
-     * is the desired robot acceleration `[ax, ay, alpha]`.
-     *
-     * The system dynamics are approximated as:
-     * `dx_dot = vx`
-     * `dy_dot = vy`
-     * `dtheta_dot = omega`
-     * `dvx_dot = ax`
-     * `dvy_dot = ay`
-     * `domega_dot = alpha`
-     *
-     * @param qX The penalty for error in the x-position. Higher values prioritize correcting x-error.
-     * @param qY The penalty for error in the y-position. Higher values prioritize correcting y-error.
-     * @param qHeading The penalty for error in the heading. Higher values prioritize correcting heading error.
-     * @param qVx The penalty for error in the x-velocity. Higher values prioritize correcting x-velocity error.
-     * @param qVy The penalty for error in the y-velocity. Higher values prioritize correcting y-velocity error.
-     * @param qOmega The penalty for error in the angular velocity. Higher values prioritize correcting angular velocity error.
-     * @param rAx The penalty for using linear acceleration in the x-direction. Higher values prioritize using less `ax`.
-     * @param rAy The penalty for using linear acceleration in the y-direction. Higher values prioritize using less `ay`.
-     * @param rAlpha The penalty for using angular acceleration. Higher values prioritize using less `alpha`.
-     * @param dt The discrete time step (control loop period) in seconds.
-     */
-    constructor(
-        qX: Double, qY: Double, qHeading: Double,
-        qVx: Double, qVy: Double, qOmega: Double,
-        rAx: Double, rAy: Double, rAlpha: Double,
-        dt: Double = 0.0303
-    ) : this(
-        LQRParameters(qX, qY, qHeading, qVx, qVy, qOmega, rAx, rAy, rAlpha),
-        dt
-    )
 
     /**
      * General-purpose constructor for any linear time-invariant (LTI) system.
@@ -204,7 +127,9 @@ class LQRController : RobotPosVelController{
 
         val (Ad, Bd) = discretizeSystem(A.simple, B.simple, dt)
 
-        this.k = solveDARE(Ad, Bd, Q.simple, R.simple, maxIter, epsilon)
+        val (_, K) = computeLQRGain(Ad, Bd, Q.simple, R.simple)
+
+        this.k = K
         this.dt = dt
     }
 
@@ -271,36 +196,56 @@ class LQRController : RobotPosVelController{
  * @author Tyler Veness (C++ implementation)
  * @author Zach Harel (Kotlin implementation)
  */
-internal fun solveDARE(Ad: SimpleMatrix, Bd: SimpleMatrix, Q: SimpleMatrix, R: SimpleMatrix, maxIter: Int = 100, epsilon: Double = 1e-6): SimpleMatrix {
-    var A = Ad.copy()
-    var G = Bd * R.solve(Bd.transpose())
-    var P = Q.copy() // Initial guess P_0 = Q
-    var H: SimpleMatrix
+internal fun solveDARE(
+    Ad: SimpleMatrix, Bd: SimpleMatrix, Q: SimpleMatrix, R: SimpleMatrix,
+    maxIter: Int = -1, epsilon: Double = 1e-6)
+: SimpleMatrix {
+    // Initialize matrices
+    var A_K = Ad.copy()
+
+    // Calculate G_k = B * R^-1 * B^T using Cholesky decomposition
+    // Equivalent to B * R.llt().solve(B.transpose())
+    var G_K = Bd * R.solve(Bd.transpose())
+
+    var H_K1 = Q.copy()
+    var H_K: SimpleMatrix
+
     var i = 0
 
     do {
-        H = P.copy()
+        H_K = H_K1.copy()
 
-        val W = SimpleMatrix.identity(Q.numRows) + G * H
+        val W = SimpleMatrix.identity(H_K.numRows) + G_K * H_K
 
-        val LU = LUDecompositionAlt_DDRM().let {
-            it.decompose(W.ddrm)
-            SimpleMatrix.wrap(it.lu)
-        }
+        val v1 = W.solve(A_K)
+        val v2 = W.solve(G_K.transpose()).transpose()
 
-        val V1 = LU.solve(A)
-        val V2 = W.solve(G.transpose()).transpose()
+        G_K = (G_K + A_K * v2 * A_K.transpose())
 
-        G += A * V2 * A.transpose()
-        P = H + V1.transpose() * H * A
-        A *= V1
+        H_K1 += v1.transpose() * H_K * A_K
 
-        i++
-    } while (i < maxIter && (P - H).normF() > epsilon * P.normF())
+        A_K *= v1
+    } while ((H_K1 - H_K).normF() > epsilon * H_K1.normF() && (maxIter < 0 || i++ < maxIter))
 
+    return H_K1
+}
 
-    // K = (R + B'PB)⁻¹(B'PA)
-    return (R + Bd.transpose() * P * Bd).invert() * Bd.transpose() * P * Ad
+/**
+ * Computes the optimal gain matrix K using [solveDARE].
+ *
+ * @return Pair of DARE solution X and K.
+ */
+internal fun computeLQRGain(
+    Ad: SimpleMatrix, Bd: SimpleMatrix, Q: SimpleMatrix, R: SimpleMatrix,
+    maxIter: Int = -1, epsilon: Double = 1e-6
+): Pair<SimpleMatrix, SimpleMatrix> {
+    val X = solveDARE(Ad, Bd, Q, R, maxIter, epsilon)
+
+    val btx = Bd.transpose() * X
+    val btxb = btx * Bd
+    val K = (R + btxb).invert() * btx * Ad
+
+    return X to K
 }
 
 /**
