@@ -134,7 +134,7 @@ deployer {
         artifactId.set("ftc")
 
         name.set("NextRunner")
-        description.set("A modern fork of RoadRunner.")
+        description.set("Integration of NextRunner's core library with FTC.")
         url.set("https://github.com/NextFTC/NextRunner")
         scm {
             fromGithub("NextFTC", "NextRunner")
@@ -142,7 +142,7 @@ deployer {
         license("GNU General Public License, version 3", "https://www.gnu.org/licenses/gpl-3.0.html")
 
         developer("Zachary Harel", "ftc@zharel.me", url = "https://github.com/zachwaffle4")
-        developer("Ryan Brott", "ftc@zharel.me", url = "https://github.com/zachwaffle4")
+        developer("Ryan Brott", "rcbrott@gmail.com", url = "https://github.com/rbrott")
     }
 
     signing {

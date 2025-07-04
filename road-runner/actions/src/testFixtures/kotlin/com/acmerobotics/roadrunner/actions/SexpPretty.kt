@@ -721,7 +721,7 @@ class SexpPrettyPrinter(private val config: Config = Config()) {
     }
 
     private fun Char.isPrintable(): Boolean {
-        return this.toInt() in 32..126
+        return code in 32..126
     }
 
     private fun escapeString(str: String): String {
